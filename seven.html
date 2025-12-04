@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+body{
+    background: #001e4d;
+}
+.app{
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: #001e4d;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    padding-bottom: 30px;
+}
+.quiz{
+    padding: 20px 0;
+}
+.quiz h2{
+    font-size: 18px;
+    color: #001e4d;
+    font-weight: 600;
+}
+.btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 100%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn:hover:not([disabled]){
+    background: #222;
+    color: #fff;
+}
+.btn:disabled{
+    cursor: no-drop;
+}
+#next-btn{
+    background: #001e4d;
+    color: #fff;
+    font-weight: 500;
+    width: 150px;
+    border: 0;
+    padding: 10px;
+    margin: 20px auto 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+.correct{
+    background: #9aeabc;
+}
+.incorrect{
+    background: #ff9393;
+}
+    </style>
+</head>
+
+<body>
+    
+    <div class="app">
+            <h1>Simple Quiz</h1>
+            <div class="quiz">
+                <h2 id="question">Question Goes Here</h2>
+                <div id="answer-buttons">
+                    <button class="btn">Answer 1</button>
+                    <button class="btn">Answer 2</button>
+                    <button class="btn">Answer 3</button>
+                    <button class="btn">Answer 4</button>
+                    <button class="btn">Answer 5</button>
+                    <button class="btn">Answer 6</button>
+                    <button class="btn">Answer 7</button>
+                    <button class="btn">Answer 8</button>
+                    <button class="btn">Answer 9</button>
+                    <button class="btn">Answer 10</button>
+                </div>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+
+</body>
+<script>
+
+const questions = [
+    // --- Core Concepts (View and Visualization) ---
+    {
+        question: "In Enterprise Architecture, what is the term for a presentation or notation used to depict views?",
+        answers: [
+            { text: "Viewpoint", correct: false},
+            { text: "Designing", correct: false},
+            { text: "Visualization", correct: true},
+            { text: "Modeling", correct: false},
+        ]
+    },
+    {
+        question: "it is derived from a symbolic model of an enterprise architecture.",
+        answers: [
+            { text: "Visualization", correct: false},
+            { text: "Viewpoint", correct: false},
+            { text: "View", correct: true},
+            { text: "Blueprint", correct: false},
+        ]
+    },
+    // --- Architecture Goals/Use (Designing, Deciding, Informing) ---
+    {
+        question: "Which Enterprise Architecture goal assists managers by offering insights about cross-domain dependencies to aid in selection?",
+        answers: [
+            { text: "Designing", correct: false},
+            { text: "Deciding", correct: true},
+            { text: "Informing", correct: false},
+            { text: "Modeling", correct: false},
+        ]
+    },
+    {
+        question: "The goal that helps inform all stakeholders about the EA to achieve understanding and obtain commitment is called?",
+        answers: [
+            { text: "Designing", correct: false},
+            { text: "Deciding", correct: false},
+            { text: "Informing", correct: true},
+            { text: "Visualizing", correct: false},
+        ]
+    },
+    // --- Business Layer Viewpoints (Selected) ---
+    {
+        question: "Which viewpoint is typically used at the start of a design trajectory to provide an initial high-level overview?",
+        answers: [
+            { text: "Technology Viewpoint", correct: false},
+            { text: "Product Viewpoint", correct: false},
+            { text: "Introductory Viewpoint", correct: true},
+            { text: "Business Process Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "Which viewpoint focuses on showing the structure of the internal organization and its departments?",
+        answers: [
+            { text: "Actor Association Viewpoint", correct: false},
+            { text: "Organization Viewpoint", correct: true},
+            { text: "Business Function Viewpoint", correct: false},
+            { text: "Product Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "The viewpoint that shows the relationships of actors within an environment, such as internal staff and external clients",
+        answers: [
+            { text: "Business Process Viewpoint", correct: false},
+            { text: "Actor Association Viewpoint", correct: true},
+            { text: "Information Structure Viewpoint", correct: false},
+            { text: "Service Realization Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "Which viewpoint shows the main business functions of an organization and their relationships in terms of flow information, value, or goods?",
+        answers: [
+            { text: "Organization Viewpoint", correct: false},
+            { text: "Business Function Viewpoint", correct: true},
+            { text: "Product Viewpoint", correct: false},
+            { text: "Business Process Association Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "The viewpoint that depicts the value of products offered to customers or other external parties involved",
+        answers: [
+            { text: "Business Function Viewpoint", correct: false},
+            { text: "Product Viewpoint", correct: true},
+            { text: "Application Usage Viewpoint", correct: false},
+            { text: "Technology Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "To show that business services are realized by the underlying business process",
+        answers: [
+            { text: "Business Process Viewpoint", correct: false},
+            { text: "Service Realization Viewpoint", correct: true},
+            { text: "Application Behavior Viewpoint", correct: false},
+            { text: "Implementation and Deployment Viewpoint", correct: false},
+        ]
+    },
+    // --- Process & Data Viewpoints ---
+    {
+        question: "Which viewpoint focuses on the higher-level structure and composition of one or more business processes?",
+        answers: [
+            { text: "Business Process Association Viewpoint", correct: false},
+            { text: "Business Process Viewpoint", correct: true},
+            { text: "Information Structure Viewpoint", correct: false},
+            { text: "Actor Association Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "The viewpoint used to show the detailed relationship of one or more business processes.",
+        answers: [
+            { text: "Business Process Viewpoint", correct: false},
+            { text: "Business Process Association Viewpoint", correct: true},
+            { text: "Service Realization Viewpoint", correct: false},
+            { text: "Technology Usage Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "Which viewpoint shows the structure of the data or information used across the enterprise or within a specific process?",
+        answers: [
+            { text: "Business Function Viewpoint", correct: false},
+            { text: "Application Structure Viewpoint", correct: false},
+            { text: "Information Structure Viewpoint", correct: true},
+            { text: "Technology Viewpoint", correct: false},
+        ]
+    },
+    // --- Application Layer Viewpoints ---
+    {
+        question: "Which viewpoint is typically used to create an overview of the application systems/landscape in a company?",
+        answers: [
+            { text: "Application Behavior Viewpoint", correct: false},
+            { text: "Application Structure Viewpoint", correct: false},
+            { text: "Application Association Viewpoint", correct: true},
+            { text: "Technology Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "The viewpoint that describes how applications are used to support one or more business processes.",
+        answers: [
+            { text: "Application Association Viewpoint", correct: false},
+            { text: "Application Behavior Viewpoint", correct: false},
+            { text: "Application Usage Viewpoint", correct: true},
+            { text: "Implementation and Deployment Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "Which viewpoint describes the internal behavior of an application or a component, such as its internal functions and processes?",
+        answers: [
+            { text: "Application Usage Viewpoint", correct: false},
+            { text: "Application Behavior Viewpoint", correct: true},
+            { text: "Application Structure Viewpoint", correct: false},
+            { text: "Information Structure Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "The viewpoint showing the structure of one or more application components, including the associated data elements.",
+        answers: [
+            { text: "Application Behavior Viewpoint", correct: false},
+            { text: "Application Structure Viewpoint", correct: true},
+            { text: "Application Association Viewpoint", correct: false},
+            { text: "Technology Usage Viewpoint", correct: false},
+        ]
+    },
+    // --- Technology & Physical Layer Viewpoints ---
+    {
+        question: "The viewpoint that comprises the hardware and software infrastructure upon which the application layer depends is the.",
+        answers: [
+            { text: "Application Structure Viewpoint", correct: false},
+            { text: "Technology Viewpoint", correct: true},
+            { text: "Physical Viewpoint", correct: false},
+            { text: "Implementation and Deployment Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "Which viewpoint specifically shows how the software and hardware infrastructure support various applications?",
+        answers: [
+            { text: "Technology Viewpoint", correct: false},
+            { text: "Technology Usage Viewpoint", correct: true},
+            { text: "Application Usage Viewpoint", correct: false},
+            { text: "Physical Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "The viewpoint showing how one or more applications are deployed onto the technical infrastructure.",
+        answers: [
+            { text: "Technology Usage Viewpoint", correct: false},
+            { text: "Application Association Viewpoint", correct: false},
+            { text: "Implementation and Deployment Viewpoint", correct: true},
+            { text: "Physical Viewpoint", correct: false},
+        ]
+    },
+    {
+        question: "Which viewpoint contains elements like physical machines, tools, and instruments (equipment)?",
+        answers: [
+            { text: "Technology Viewpoint", correct: false},
+            { text: "Implementation and Deployment Viewpoint", correct: false},
+            { text: "Physical Viewpoint", correct: true},
+            { text: "Information Structure Viewpoint", correct: false},
+        ]
+    }
+];
+    
+function shuffle(array){
+    for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+
+    shuffle(questions);
+    questions.forEach(q => shuffle(q.answers));
+
+    showQuestion();
+}
+
+function showQuestion(){
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+
+function resetState(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+
+startQuiz();
+
+</script>
+</html>
