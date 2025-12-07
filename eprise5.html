@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    
+<style>
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* === Container === */
+    #quiz-container {
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    /* === Titles === */
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #4338ca;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      color: #4338ca;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    /* === Question Area === */
+    #question-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1.5rem;
+    }
+
+    /* === Options === */
+    #options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .option-button {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      text-align: left;
+      background-color: #f3f4f6;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      color: #374151;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option-button:hover:not(:disabled) {
+      background-color: #e0e7ff;
+      border-color: #6366f1;
+      transform: scale(1.01);
+    }
+
+    .option-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    /* === Feedback === */
+    #feedback-area {
+      margin-top: 1.2rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+
+    .bg-green-100 {
+      background-color: #dcfce7;
+    }
+
+    .bg-red-100 {
+      background-color: #fee2e2;
+    }
+
+    .text-green-700 {
+      color: #15803d;
+    }
+
+    .text-red-700 {
+      color: #b91c1c;
+    }
+    
+    
+
+
+    /* === Next Button === */
+    #next-button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.9rem;
+      background-color: #4f46e5;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #next-button:hover:not(:disabled) {
+      background-color: #4338ca;
+      transform: scale(1.02);
+    }
+
+    #next-button:disabled {
+      background-color: #a5b4fc;
+      cursor: not-allowed;
+    }
+
+    /* === Results === */
+    #results-container {
+      text-align: center;
+      display: none;
+    }
+
+    #final-score {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #1f2937;
+    }
+
+    #total-questions {
+      font-size: 1.5rem;
+      color: #6b7280;
+    }
+
+    #score-message {
+      font-size: 1rem;
+      color: #4b5563;
+      margin-bottom: 1.5rem;
+    }
+
+    button.restart {
+      padding: 0.6rem 1.5rem;
+      background-color: #16a34a;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button.restart:hover {
+      background-color: #15803d;
+      transform: scale(1.02);
+    }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div id="quiz-container">
+    <h1>QUIZ</h1>
+    <div id="quiz-content">
+      <div id="question-area">
+        <p id="question-text"></p>
+        <div id="options-container"></div>
+      </div>
+
+      <div id="feedback-area"></div>
+
+      <button id="next-button" onclick="nextQuestion()" disabled>Next Question</button>
+    </div>
+
+    <div id="results-container">
+      <h2>Quiz Complete!</h2>
+      <p>
+        <span id="final-score">0</span> / <span id="total-questions">40</span>
+      </p>
+      <p id="score-message"></p>
+      <button class="restart" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+  </div>
+
+    <script>
+        // Store the original definitions extracted from the images (40 items), with bolding removed from answers
+          const originalQuizData = [
+  {
+    question: "What refers to a specific manner based on the agreed perception",
+    correctAnswer: "Knowledge Representation",
+    options: [
+      "Knowledge Representation",
+      "Knowledge Goals",
+      "Knowledge Transformation",
+      "Central Representation"
+    ]
+  },
+  {
+    question: "Which term refers to the goals under the modeling process?",
+    correctAnswer: "Knowledge Goals",
+    options: [
+      "Knowledge Goals",
+      "Knowledge State",
+      "Knowledge Representation",
+      "Central Representation"
+    ]
+  },
+  {
+    question: "What involves the condition and commitment of stakeholders",
+    correctAnswer: "Knowledge State",
+    options: [
+      "Knowledge State",
+      "Knowledge Goals",
+      "Knowledge Transformation",
+      "Central Representation"
+    ]
+  },
+  {
+    question: "Which term describes the situation where knowledge passes through the modeling process considering goals and guidelines?",
+    correctAnswer: "Knowledge Transformation",
+    options: [
+      "Knowledge Transformation",
+      "Knowledge Representation",
+      "Knowledge Goals",
+      "Knowledge State"
+    ]
+  },
+  {
+    question: "What are the primary and essential models used in the transformation of knowledge?",
+    correctAnswer: "Central Representation",
+    options: [
+      "Central Representation",
+      "Knowledge Goals",
+      "Knowledge Transformation",
+      "Knowledge State"
+    ]
+  },
+  {
+    question: "Which activity involves determining all possible stakeholders and the different purposes of the modelin relation to the stakeholders",
+    correctAnswer: "Establishing the purpose, scope, and focus",
+    options: [
+      "Establishing the purpose, scope, and focus",
+      "Selecting one or more viewpoints",
+      "Visualizing the model",
+      "Using the model"
+    ]
+  },
+  {
+    question: "What activity involves using different viewpoints that give specific sets of concepts and relations?",
+    correctAnswer: "Selecting one or more viewpoints",
+    options: [
+      "Selecting one or more viewpoints",
+      "Creating and structuring the model",
+      "Visualizing the model",
+      "Maintaining the model"
+    ]
+  },
+  {
+    question: "What modeling activity involves requirements gathering, such as appropriate information, to create, structure, and visualize a model?",
+    correctAnswer: "Creating and structuring the model",
+    options: [
+      "Creating and structuring the model",
+      "Visualizing the model",
+      "Using the model",
+      "Establishing the purpose, scope, and focus"
+    ]
+  },
+  {
+    question: "In which activity must stakeholders and their needs be considered when visualizing a model?",
+    correctAnswer: "Visualizing the model",
+    options: [
+      "Visualizing the model",
+      "Creating and structuring the model",
+      "Using the model",
+      "Selecting one or more viewpoints"
+    ]
+  },
+  {
+    question: "What is an example of a way to visualize a model?",
+    correctAnswer: "Central Model",
+    options: [
+      "Central Model",
+      "Knowledge Goals",
+      "Knowledge Representation",
+      "Knowledge Transformation"
+    ]
+  },
+  {
+    question: "Which activity uses the model representation to communicate with stakeholders and evaluate the outcome?",
+    correctAnswer: "Using the model",
+    options: [
+      "Using the model",
+      "Creating and structuring the model",
+      "Visualizing the model",
+      "Validation"
+    ]
+  },
+  {
+    question: "What involves checking whether key stakeholders agree that the viewpoints in the model are correct?",
+    correctAnswer: "Validation",
+    options: [
+      "Validation",
+      "Obtaining Commitment",
+      "Informing",
+      "Maintaining the model"
+    ]
+  },
+  {
+    question: "Which activity occurs after validation and requires stakeholders to agree and commit to the models potential impacts?",
+    correctAnswer: "Obtaining Commitment",
+    options: [
+      "Obtaining Commitment",
+      "Validation",
+      "Informing",
+      "Abstraction"
+    ]
+  },
+  {
+    question: "What involves disseminating information to all stakeholders?",
+    correctAnswer: "Informing",
+    options: [
+      "Informing",
+      "Validation",
+      "Documentation",
+      "Refinement"
+    ]
+  },
+  {
+    question: "Which activity ensures that the model remains up to date and valuable for stakeholders?",
+    correctAnswer: "Maintaining the model",
+    options: [
+      "Maintaining the model",
+      "Informing",
+      "Obtaining Commitment",
+      "Translation"
+    ]
+  },
+  {
+    question: "introduce a candidate element in a model, this is the act of placing a fresh term for a concept or relation within a model",
+    correctAnswer: "Introduction",
+    options: [
+      "Introduction",
+      "Refinement",
+      "Abstraction",
+      "Translation"
+    ]
+  },
+  {
+    question: "other than introducing new elements, refining can be done by adding specific details to existing elements",
+    correctAnswer: "Refinement",
+    options: [
+      "Refinement",
+      "Abandoning",
+      "Documentation",
+      "Introduction"
+    ]
+  },
+  {
+    question: "this involves an explicit decision of eliminating or delete a concept or relation with proper documentation, too avoid the concept of *lingering around*",
+    correctAnswer: "Abandoning",
+    options: [
+      "Abandoning",
+      "Refinement",
+      "Introduction",
+      "Abstraction"
+    ]
+  },
+  {
+    question: "this activity architect decides whether information, that is available in the model, is to be left out or not",
+    correctAnswer: "Abstraction",
+    options: [
+      "Abstraction",
+      "Refinement",
+      "Translation",
+      "Introduction"
+    ]
+  },
+  {
+    question: "the process of finding a suitable alternative for an element",
+    correctAnswer: "Translation",
+    options: [
+      "Translation",
+      "Refinement",
+      "Abstraction",
+      "Documentation"
+    ]
+  },
+  {
+    question: "this involves the administration and documentation of all or some modeling actions, such as refinement and abstraction",
+    correctAnswer: "Documentation",
+    options: [
+      "Documentation",
+      "Translation",
+      "Introduction",
+      "Validation"
+    ]
+  }
+];
+
+
+        let quizData = []; // This will hold the shuffled questions
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+        
+        // Helper function to shuffle an array (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Generate the UUID used for a simple, temporary user ID for auth in this context
+        const userId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'temp-user-id';
+
+        // Display the current question and options
+        function loadQuestion() {
+            // Re-shuffle the options for the current question
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            // Generate options array including the correct answer and three incorrect options
+            const allOptions = [...currentQuestion.options];
+
+            // Shuffle the options to prevent the correct answer from always being in the same spot
+            const shuffledOptions = shuffleArray(allOptions);
+            
+            answered = false;
+            
+            document.getElementById('question-text').textContent = (currentQuestionIndex + 1) + ". " + currentQuestion.question;
+            document.getElementById('feedback-area').classList.add('hidden');
+            document.getElementById('next-button').disabled = true;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add(
+                    'option-button', 
+                    'w-full', 'p-4', 'text-left', 'bg-gray-100', 'rounded-lg', 'shadow-sm', 
+                    'hover:bg-indigo-100', 'hover:border-indigo-500', 'border-2', 'border-gray-200',
+                    'transition', 'duration-200', 'text-gray-700', 'font-medium'
+                );
+                button.setAttribute('data-answer', option);
+                button.onclick = () => checkAnswer(button, option, currentQuestion.correctAnswer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Check the user's answer
+        function checkAnswer(selectedButton, selectedAnswer, correctAnswer) {
+            if (answered) return;
+            answered = true;
+            
+            const options = document.querySelectorAll('.option-button');
+            const feedbackArea = document.getElementById('feedback-area');
+            
+            // Disable all buttons after one is selected
+            options.forEach(btn => btn.disabled = true);
+            
+            // Handle visual feedback and scoring
+            if (selectedAnswer === correctAnswer) {
+                score++;
+                selectedButton.classList.remove('bg-gray-100', 'hover:bg-indigo-100');
+                selectedButton.classList.add('bg-green-100', 'border-green-500');
+                feedbackArea.textContent = 'Correct! That is the right definition.';
+                feedbackArea.classList.remove('bg-red-100', 'text-red-700');
+                feedbackArea.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                selectedButton.classList.remove('bg-gray-100', 'hover:bg-indigo-100');
+                selectedButton.classList.add('bg-red-100', 'border-red-500');
+                feedbackArea.textContent = `Incorrect. The correct answer was: ${correctAnswer}.`;
+                feedbackArea.classList.remove('bg-green-100', 'text-green-700');
+                feedbackArea.classList.add('bg-red-100', 'text-red-700');
+                
+                // Highlight the correct answer
+                options.forEach(btn => {
+                    if (btn.getAttribute('data-answer') === correctAnswer) {
+                        btn.classList.add('bg-green-200', 'border-green-600');
+                    }
+                });
+            }
+            
+            feedbackArea.classList.remove('hidden');
+            document.getElementById('next-button').disabled = false;
+        }
+
+        // Move to the next question or show results
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Display final score
+        function showResults() {
+              document.getElementById('quiz-content').style.display = 'none';
+              document.getElementById('results-container').style.display = 'block';
+
+              document.getElementById('final-score').textContent = score;
+              const total = quizData.length;
+              document.getElementById('total-questions').textContent = total;
+
+              const percentage = (score / total) * 100;
+              let message = '';
+
+              if (percentage === 100) {
+                message = "Perfect score! You are a master of File I/O concepts.";
+              } else if (percentage >= 70) {
+                message = "Great job! You have a strong understanding of these concepts.";
+              } else if (percentage >= 50) {
+                message = "Good attempt! Review the definitions to solidify your knowledge.";
+              } else {
+                message = "Keep studying! Reviewing the terms and their descriptions will help a lot.";
+              }
+
+              document.getElementById('score-message').textContent = message;
+            }
+
+              function restartQuiz() {
+                quizData = shuffleArray([...originalQuizData]);
+                currentQuestionIndex = 0;
+                score = 0;
+                document.getElementById('results-container').style.display = 'none';
+                document.getElementById('quiz-content').style.display = 'block';
+                loadQuestion();
+              }
+
+        
+        // Initial setup function
+        function initializeQuiz() {
+             // 1. Shuffle the questions right before the first load
+            quizData = shuffleArray([...originalQuizData]);
+            // 2. Update the total questions display
+            document.getElementById('total-questions').textContent = quizData.length;
+            // 3. Load the first question
+            loadQuestion();
+        }
+
+        // Initialize the quiz on load
+        window.onload = initializeQuiz;
+    </script>
+</body>
+</html>

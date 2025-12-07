@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>.NET Assemblies Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .quiz-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .answer-button {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .answer-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+        .correct-answer {
+            background-color: #10b981 !important; /* Tailwind green-500 */
+            color: white !important;
+            border-color: #059669 !important; /* Tailwind green-600 */
+        }
+        .incorrect-answer {
+            background-color: #ef4444 !important; /* Tailwind red-500 */
+            color: white !important;
+            border-color: #dc2626 !important; /* Tailwind red-600 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="quiz-app" class="quiz-container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">.NET Assemblies Knowledge Check</h1>
+        
+        <div id="quiz-area">
+            <div id="question-card" class="mb-8">
+                <p id="question-number" class="text-sm font-medium text-indigo-600 mb-2">Question 1 of 6</p>
+                <p id="question-text" class="text-xl text-gray-700 font-semibold bg-indigo-50 p-4 rounded-lg shadow-inner">
+                    Loading question...
+                </p>
+            </div>
+            
+            <div id="answers-container" class="grid gap-4">
+                <!-- Answer buttons will be injected here -->
+            </div>
+            
+            <div id="feedback-area" class="mt-6 text-center hidden">
+                <p id="feedback-text" class="text-lg font-medium"></p>
+                <button id="next-button" class="mt-4 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg shadow-lg transition duration-200" onclick="nextQuestion()">
+                    Next Question
+                </button>
+            </div>
+        </div>
+
+        <div id="results-area" class="text-center hidden p-8 bg-white rounded-lg shadow-lg">
+            <h2 class="text-4xl font-extrabold text-indigo-700 mb-4">Quiz Complete!</h2>
+            <p class="text-2xl text-gray-700 mb-6">Your Score:</p>
+            <p id="final-score" class="text-6xl font-black text-indigo-500">0 / 0</p>
+            <p id="score-message" class="text-xl mt-4 text-gray-600"></p>
+            <button class="mt-8 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-full shadow-xl transition duration-200" onclick="startQuiz()">
+                Restart Quiz
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Data derived from the uploaded image content
+        const ALL_QUESTIONS = [
+            {
+                question: "Files that contain compiled code targeted at the .NET Framework, basically physical packages meant for distributing code.",
+                correctAnswer: "Assemblies",
+                distractors: ["Shared Assemblies", "Name Collision", "Global Assembly Cache (GAC)"]
+            },
+            {
+                question: "These are libraries that other applications can commonly use, requiring security precautions.",
+                correctAnswer: "Shared Assemblies",
+                distractors: ["Private Assemblies", "Metadata", "Manifest"]
+            },
+            {
+                question: "A common problem in shared assembly wherein other classes or variables have the same name that matches with the other shared assembly.",
+                correctAnswer: "Name Collision",
+                distractors: ["Private Assemblies", "Shared Assemblies", "Global Assembly Cache (GAC)"]
+            },
+            {
+                question: "It enables several applications to share assembly and is a centralized storage location for .NET Assemblies.",
+                correctAnswer: "Global Assembly Cache (GAC)",
+                distractors: ["Private Assemblies", "Manifest", "Metadata"]
+            },
+            {
+                question: "The section of an assembly that includes information about the data types of the program that are being used.",
+                correctAnswer: "Metadata",
+                distractors: ["Manifest", ".exe", ".dll"]
+            },
+            {
+                question: "The section of an assembly that holds the information of the assembly, which consists of the name, version number, and the type of mapping information.",
+                correctAnswer: "Manifest",
+                distractors: ["Metadata", "Name Collision", "Private Assembly"]
+            },
+            {
+                question: "The file extension used for standalone components of an assembly.",
+                correctAnswer: ".exe",
+                distractors: [".dll", "Metadata", "Manifest"]
+            },
+            {
+                question: "The file extension used for reusable components of an assembly.",
+                correctAnswer: ".dll",
+                distractors: [".exe", "Metadata", "Manifest"]
+            },
+        ];
+
+        let questions = []; // Shuffled array of questions for the current quiz
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false; // Flag to prevent multiple answers per question
+
+        // DOM elements
+        const quizArea = document.getElementById('quiz-area');
+        const resultsArea = document.getElementById('results-area');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionTextEl = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackTextEl = document.getElementById('feedback-text');
+        const nextButton = document.getElementById('next-button');
+        const finalScoreEl = document.getElementById('final-score');
+        const scoreMessageEl = document.getElementById('score-message');
+
+        /**
+         * Standard Fisher-Yates shuffle algorithm.
+         * @param {Array} array - The array to shuffle.
+         * @returns {Array} The shuffled array.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * Initializes and starts the quiz.
+         * Shuffles the questions and resets state.
+         */
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            answered = false;
+            
+            // 1. Shuffle the master list of questions
+            questions = shuffleArray([...ALL_QUESTIONS]);
+
+            // 2. Hide results, show quiz
+            resultsArea.classList.add('hidden');
+            quizArea.classList.remove('hidden');
+
+            // 3. Display the first question
+            displayQuestion();
+        }
+
+        /**
+         * Displays the current question and its shuffled choices.
+         */
+        function displayQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                // Quiz is over
+                showResults();
+                return;
+            }
+
+            answered = false;
+            feedbackArea.classList.add('hidden');
+            answersContainer.innerHTML = '';
+            
+            const currentQ = questions[currentQuestionIndex];
+            
+            questionNumberEl.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            questionTextEl.textContent = currentQ.question;
+            
+            // 1. Combine correct answer and distractors
+            const choices = [currentQ.correctAnswer, ...currentQ.distractors];
+            
+            // 2. Shuffle the choices
+            const shuffledChoices = shuffleArray(choices);
+
+            // 3. Create and append answer buttons
+            shuffledChoices.forEach(choice => {
+                const button = document.createElement('button');
+                button.textContent = choice;
+                button.className = 'answer-button w-full text-left bg-white text-gray-800 font-medium py-3 px-5 rounded-lg border border-gray-200 shadow-md hover:bg-indigo-50 hover:border-indigo-400 transition duration-150';
+                button.onclick = () => checkAnswer(button, choice, currentQ.correctAnswer);
+                answersContainer.appendChild(button);
+            });
+        }
+
+        /**
+         * Checks the selected answer, updates the score, and provides feedback.
+         * @param {HTMLElement} selectedButton - The button the user clicked.
+         * @param {string} selectedAnswer - The text of the selected choice.
+         * @param {string} correctAnswer - The correct answer text.
+         */
+        function checkAnswer(selectedButton, selectedAnswer, correctAnswer) {
+            if (answered) return;
+            answered = true;
+
+            const allButtons = answersContainer.querySelectorAll('button');
+            
+            // Disable all buttons
+            allButtons.forEach(btn => btn.disabled = true);
+
+            // Determine if the answer is correct
+            const isCorrect = selectedAnswer === correctAnswer;
+
+            if (isCorrect) {
+                score++;
+                selectedButton.classList.add('correct-answer');
+                feedbackTextEl.textContent = "Correct! Well done.";
+                feedbackTextEl.classList.remove('text-red-500');
+                feedbackTextEl.classList.add('text-green-600');
+            } else {
+                selectedButton.classList.add('incorrect-answer');
+                feedbackTextEl.textContent = `Incorrect. The correct answer was: ${correctAnswer}.`;
+                feedbackTextEl.classList.remove('text-green-600');
+                feedbackTextEl.classList.add('text-red-500');
+                
+                // Highlight the correct answer
+                allButtons.forEach(btn => {
+                    if (btn.textContent === correctAnswer) {
+                        btn.classList.add('correct-answer');
+                    }
+                });
+            }
+
+            // Show feedback and the next button
+            feedbackArea.classList.remove('hidden');
+            
+            // Change button text for final question
+            if (currentQuestionIndex === questions.length - 1) {
+                nextButton.textContent = 'View Results';
+            } else {
+                nextButton.textContent = 'Next Question';
+            }
+        }
+
+        /**
+         * Moves to the next question.
+         */
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        /**
+         * Displays the final score and a message.
+         */
+        function showResults() {
+            quizArea.classList.add('hidden');
+            resultsArea.classList.remove('hidden');
+
+            const total = questions.length;
+            finalScoreEl.textContent = `${score} / ${total}`;
+
+            let message = '';
+            const percentage = (score / total) * 100;
+            
+            if (percentage === 100) {
+                message = "Perfect score! You are a .NET Assembly expert!";
+            } else if (percentage >= 75) {
+                message = "Great job! You have a strong understanding of the topic.";
+            } else if (percentage >= 50) {
+                message = "Solid effort. Review the concepts to improve further.";
+            } else {
+                message = "Keep studying! Review the differences between Private and Shared Assemblies.";
+            }
+            scoreMessageEl.textContent = message;
+        }
+
+        // Initialize the quiz when the window loads
+        window.onload = startQuiz;
+    </script>
+</body>
+</html>

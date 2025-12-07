@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+body{
+    background: #001e4d;
+}
+.app{
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: #001e4d;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    padding-bottom: 30px;
+}
+.quiz{
+    padding: 20px 0;
+}
+.quiz h2{
+    font-size: 18px;
+    color: #001e4d;
+    font-weight: 600;
+}
+.btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 100%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn:hover:not([disabled]){
+    background: #222;
+    color: #fff;
+}
+.btn:disabled{
+    cursor: no-drop;
+}
+#next-btn{
+    background: #001e4d;
+    color: #fff;
+    font-weight: 500;
+    width: 150px;
+    border: 0;
+    padding: 10px;
+    margin: 20px auto 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+.correct{
+    background: #9aeabc;
+}
+.incorrect{
+    background: #ff9393;
+}
+    </style>
+</head>
+
+<body>
+    
+    <div class="app">
+            <h1>Simple Quiz</h1>
+            <div class="quiz">
+                <h2 id="question">Question Goes Here</h2>
+                <div id="answer-buttons">
+                    <button class="btn">Answer 1</button>
+                    <button class="btn">Answer 2</button>
+                    <button class="btn">Answer 3</button>
+                    <button class="btn">Answer 4</button>
+                    <button class="btn">Answer 5</button>
+                    <button class="btn">Answer 6</button>
+                    <button class="btn">Answer 7</button>
+                    <button class="btn">Answer 8</button>
+                    <button class="btn">Answer 9</button>
+                    <button class="btn">Answer 10</button>
+                </div>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+
+</body>
+<script>
+
+    const questions = [
+    // --- Cryptography Security Goals ---
+    {
+        question: "Which security goal is the art of ensuring that data is kept private and accessed only by the intended user?",
+        answers: [
+            { text: "Integrity", correct: false},
+            { text: "Availability", correct: false},
+            { text: "Confidentiality", correct: true},
+            { text: "Authentication", correct: false},
+        ]
+    },
+    {
+        question: "Which security goal ensures the data is transmitted from source to destination without unauthorized alteration?",
+        answers: [
+            { text: "Confidentiality", correct: false},
+            { text: "Integrity", correct: true},
+            { text: "Availability", correct: false},
+            { text: "Authentication", correct: false},
+        ]
+    },
+    {
+        question: "Which security goal ensures that the information created and stored by an organization is accessible to authorized entities when needed?",
+        answers: [
+            { text: "Integrity", correct: false},
+            { text: "Availability", correct: true},
+            { text: "Authentication", correct: false},
+            { text: "Confidentiality", correct: false},
+        ]
+    },
+    {
+        question: "What is the process of verifying that the user is exactly who he claims to be?",
+        answers: [
+            { text: "Authorization", correct: false},
+            { text: "Availability", correct: false},
+            { text: "Authentication", correct: true},
+            { text: "Confidentiality", correct: false},
+        ]
+    },
+    // --- Types of Authentication ---
+    {
+        question: "Which type of authentication is usually done through the use of passwords or user IDs alone?",
+        answers: [
+            { text: "Two-factor authentication", correct: false},
+            { text: "Biometric authentication", correct: false},
+            { text: "Single-factor authentication", correct: true},
+            { text: "Multi-factor authentication", correct: false},
+        ]
+    },
+    {
+        question: "What is a two-step verification method that provides an extra layer of security?",
+        answers: [
+            { text: "Single-factor authentication", correct: false},
+            { text: "Two-factor authentication", correct: true},
+            { text: "Authorization", correct: false},
+            { text: "Repudiation", correct: false},
+        ]
+    },
+    // --- Attacks Threatening Confidentiality ---
+    {
+        question: "Which attack refers to unauthorized access to or interception of data?",
+        answers: [
+            { text: "Traffic analysis", correct: false},
+            { text: "Modification", correct: false},
+            { text: "Snooping", correct: true},
+            { text: "Replaying", correct: false},
+        ]
+    },
+    {
+        question: "Although data is enciphered, this attack infers information by observing the characteristics of the transmission, like volume and frequency.",
+        answers: [
+            { text: "Snooping", correct: false},
+            { text: "Traffic analysis", correct: true},
+            { text: "Masquerading", correct: false},
+            { text: "DOS", correct: false},
+        ]
+    },
+    // --- Attacks Threatening Integrity ---
+    {
+        question: "Which attack involves modifying the information to make it beneficial to the attacker?",
+        answers: [
+            { text: "Masquerading", correct: false},
+            { text: "Replaying", correct: false},
+            { text: "Repudiation", correct: false},
+            { text: "Modification", correct: true},
+        ]
+    },
+    {
+        question: "Which attack happens when the attacker impersonates somebody else to gain benefits?",
+        answers: [
+            { text: "Modification", correct: false},
+            { text: "Masquerading", correct: true},
+            { text: "Snooping", correct: false},
+            { text: "Replaying", correct: false},
+        ]
+    },
+    {
+        question: "The attacker obtains a copy of a message sent by a user and later tries to send it again. What is this attack called?",
+        answers: [
+            { text: "Modification", correct: false},
+            { text: "Replaying", correct: true},
+            { text: "Masquerading", correct: false},
+            { text: "Repudiation", correct: false},
+        ]
+    },
+    {
+        question: "Which type of attack is performed by one of the two parties in the communication (e.g., denying having sent or received a message)?",
+        answers: [
+            { text: "Modification", correct: false},
+            { text: "Masquerading", correct: false},
+            { text: "Repudiation", correct: true},
+            { text: "Replaying", correct: false},
+        ]
+    },
+    // --- Attack Threatening Availability ---
+    {
+        question: "Which attack may slow down or totally interrupt the service of a system, making resources unavailable to authorized users?",
+        answers: [
+            { text: "Replaying", correct: false},
+            { text: "Trojan horse", correct: false},
+            { text: "DOS (Denial of Service)", correct: true},
+            { text: "Phishing", correct: false},
+        ]
+    },
+    // --- Network Attacks ---
+    {
+        question: "What is the process of capturing the data packets traveling across a network?",
+        answers: [
+            { text: "Spoofing", correct: false},
+            { text: "Network sniffing", correct: true},
+            { text: "Phishing", correct: false},
+            { text: "Session hijacking", correct: false},
+        ]
+    },
+    {
+        question: "Which attack involves an intruder masquerading as a trusted user to gain unauthorized access to a secure environment?",
+        answers: [
+            { text: "Network sniffing", correct: false},
+            { text: "Spoofing", correct: true},
+            { text: "Man in the middle", correct: false},
+            { text: "Trojan horse", correct: false},
+        ]
+    },
+    {
+        question: "Which attack involves placing a software agent between the client and server ends to intercept communication?",
+        answers: [
+            { text: "Spoofing", correct: false},
+            { text: "Man in the middle", correct: true},
+            { text: "Session hijacking", correct: false},
+            { text: "Phishing", correct: false},
+        ]
+    },
+    {
+        question: "Which malicious program installs harmful software while under the guise of doing something else useful or legitimate?",
+        answers: [
+            { text: "Man in the middle", correct: false},
+            { text: "Trojan horse", correct: true},
+            { text: "Spoofing", correct: false},
+            { text: "Phishing", correct: false},
+        ]
+    },
+    {
+        question: "Which attack refers to the exploitation of a valid computer session to gain unauthorized access to information or control?",
+        answers: [
+            { text: "Spoofing", correct: false},
+            { text: "Phishing", correct: false},
+            { text: "Session hijacking", correct: true},
+            { text: "Trojan horse", correct: false},
+        ]
+    },
+    {
+        question: "In which attack does the attacker attempt to fraudulently acquire sensitive information, often by posing as a trustworthy entity in an electronic communication?",
+        answers: [
+            { text: "Spoofing", correct: false},
+            { text: "Session hijacking", correct: false},
+            { text: "Phishing", correct: true},
+            { text: "Man in the middle", correct: false},
+        ]
+    },
+    // --- Cryptography Terminologies ---
+    {
+        question: "What is the method of concealing information by transforming a recognizable text into an encrypted form?",
+        answers: [
+            { text: "Decryption", correct: false},
+            { text: "Cryptanalysis", correct: false},
+            { text: "Encryption", correct: true},
+            { text: "Cryptology", correct: false},
+        ]
+    },
+    {
+        question: "Encryption transforms readable text into which form?",
+        answers: [
+            { text: "ciphertext", correct: false},
+            { text: "plaintext", correct: true},
+            { text: "cryptosystem", correct: false},
+            { text: "decryption", correct: false},
+        ]
+    },
+    {
+        question: "What is the unintelligible form that results when plaintext is transformed using an encryption algorithm?",
+        answers: [
+            { text: "plaintext", correct: false},
+            { text: "ciphertext", correct: true},
+            { text: "cryptosystem", correct: false},
+            { text: "decryption", correct: false},
+        ]
+    },
+    {
+        question: "What is used to scramble a message so that it remains secure even if the ciphertext is transmitted over a nonsecure medium?",
+        answers: [
+            { text: "plaintext", correct: false},
+            { text: "decryption", correct: false},
+            { text: "encryption algorithm", correct: true},
+            { text: "cryptosystem", correct: false},
+        ]
+    },
+    {
+        question: "What is the process of recovering a plaintext from its ciphertext?",
+        answers: [
+            { text: "Encryption", correct: false},
+            { text: "Decryption", correct: true},
+            { text: "Cryptanalysis", correct: false},
+            { text: "Authentication", correct: false},
+        ]
+    },
+    {
+        question: "What is the term for a system that encrypts and decrypts information?",
+        answers: [
+            { text: "Encryption algorithm", correct: false},
+            { text: "Cryptosystem", correct: true},
+            { text: "Cryptanalysis", correct: false},
+            { text: "Cryptography", correct: false},
+        ]
+    },
+    {
+        question: "What is the art of creating and using cryptosystems?",
+        answers: [
+            { text: "Cryptanalysis", correct: false},
+            { text: "Cryptology", correct: false},
+            { text: "Cryptography", correct: true},
+            { text: "Decryption", correct: false},
+        ]
+    },
+    {
+        question: "What is the art of breaking encrypted messages?",
+        answers: [
+            { text: "Cryptography", correct: false},
+            { text: "Cryptology", correct: false},
+            { text: "Cryptanalysis", correct: true},
+            { text: "Snooping", correct: false},
+        ]
+    },
+    {
+        question: "What is the overall field of study that encompasses both cryptography and cryptanalysis?",
+        answers: [
+            { text: "Authentication", correct: false},
+            { text: "Cryptology", correct: true},
+            { text: "Cryptanalysis", correct: false},
+            { text: "Cryptography", correct: false},
+        ]
+    },
+    {
+        question: "Which term refers to readable text before the encryption process?",
+        answers: [
+            { text: "Ciphertext", correct: false},
+            { text: "Decryption", correct: false},
+            { text: "Plaintext", correct: true},
+            { text: "Cryptosystem", correct: false},
+        ]
+    },
+    {
+        question: "An attack that denies the availability of information threatens which of the three primary security goals?",
+        answers: [
+            { text: "Confidentiality", correct: false},
+            { text: "Integrity", correct: false},
+            { text: "Availability", correct: true},
+            { text: "Authentication", correct: false},
+        ]
+    }
+];
+    
+
+function shuffle(array){
+    for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+
+    shuffle(questions);
+    questions.forEach(q => shuffle(q.answers));
+
+    showQuestion();
+}
+
+function showQuestion(){
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+
+function resetState(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+
+startQuiz();
+
+</script>
+</html>

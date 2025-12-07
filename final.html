@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+body{
+    background: #001e4d;
+}
+.app{
+    background: #fff;
+    width: 90%;
+    max-width: 1000px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: #001e4d;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    padding-bottom: 30px;
+}
+.quiz{
+    padding: 20px 0;
+}
+.quiz h2{
+    font-size: 18px;
+    color: #001e4d;
+    font-weight: 600;
+}
+.btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 100%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn:hover:not([disabled]){
+    background: #222;
+    color: #fff;
+}
+.btn:disabled{
+    cursor: no-drop;
+}
+#next-btn, #explore-btn, #next-section-btn{
+    background: #001e4d;
+    color: #fff;
+    font-weight: 500;
+    width: 150px;
+    border: 0;
+    padding: 10px;
+    margin: 20px 10px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+#explore-btn{
+    background: #28a745;
+}
+#next-section-btn{
+    background: #ff6b6b;
+}
+.button-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.correct{
+    background: #9aeabc;
+}
+.incorrect{
+    background: #ff9393;
+}
+.study-section{
+    display: none;
+}
+.study-section h2{
+    color: #001e4d;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+.study-section h3{
+    color: #28a745;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+.study-section p{
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #333;
+}
+.study-section pre{
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    border-left: 4px solid #001e4d;
+}
+.section-indicator{
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-top: 20px;
+}
+#play-again-btn{
+   display: inline-block; 
+   background: #001e4d; color: #fff; 
+   font-weight: 500; 
+   width: 150px; 
+   border: 0; 
+   padding: 10px; 
+   margin: 20px 10px 0; 
+   border-radius: 4px; 
+   cursor: pointer;
+}
+    </style>
+</head>
+
+<body>
+    
+    <div class="app">
+        <h1>Simple Quiz</h1>
+        <div class="quiz" id="quiz-container">
+            <h2 id="question">Question Goes Here</h2>
+            <div id="answer-buttons">
+                <button class="btn">Answer 1</button>
+                <button class="btn">Answer 2</button>
+                <button class="btn">Answer 3</button>
+                <button class="btn">Answer 4</button>
+            </div>
+            <div class="button-container">
+                <button id="next-btn">Next</button>
+                <button id="explore-btn">Explore</button>
+            </div>
+        </div>
+
+        <div class="study-section" id="study-container">
+            <div id="section-content"></div>
+            <div class="section-indicator" id="section-indicator"></div>
+            <div class="button-container">
+                <button id="next-section-btn">Next Section</button>
+                <button id="play-again-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script>
+
+const questions = [
+    {
+        question: "What OOP principle allows a single action to be performed in different ways?",
+        answers: [
+            { text: "Inheritance", correct: false},
+            { text: "Encapsulation", correct: false},
+            { text: "Abstraction", correct: false},
+            { text: "Polymorphism", correct: true},
+        ]
+    },
+    {
+        question: "Which type of polymorphism's flow of control is decided during compile time?",
+        answers: [
+            { text: "Dynamic (Runtime)", correct: false},
+            { text: "Virtual", correct: false},
+            { text: "Static (Compile-time)", correct: true},
+            { text: "Abstract", correct: false},
+        ]
+    },
+    {
+        question: "Which type of polymorphism's flow of control is decided during runtime?",
+        answers: [
+            { text: "Static (Compile-time)", correct: false},
+            { text: "Virtual", correct: false},
+            { text: "Dynamic (Runtime)", correct: true},
+            { text: "Abstract", correct: false},
+        ]
+    },
+    {
+        question: "What OOP technique allows you to change the existing type of an object reference to another type?",
+        answers: [
+            { text: "Type Conversion", correct: false},
+            { text: "Object Cloning", correct: false},
+            { text: "Object Casting", correct: true},
+            { text: "Autoboxing", correct: false},
+        ]
+    },
+    {
+        question: "When an object reference is cast from a subclass to a superclass, what is this process called?",
+        answers: [
+            { text: "Downcasting", correct: false},
+            { text: "Primitive Casting", correct: false},
+            { text: "Upcasting", correct: true},
+            { text: "Dynamic Casting", correct: false},
+        ]
+    },
+    {
+        question: "When an object reference is cast from a superclass to a subclass, what is this process called?",
+        answers: [
+            { text: "Upcasting", correct: false},
+            { text: "Implicit Casting", correct: false},
+            { text: "Downcasting", correct: true},
+            { text: "Method Overloading", correct: false},
+        ]
+    },
+];
+
+const studySections = [
+    {
+        title: "Static & Dynamic Polymorphism",
+        content: `
+            <h2>Static Polymorphism</h2>
+            <p><strong>Definition:</strong> Multiple methods within the same class share the exact same name but have different signatures.</p>
+            <pre>Method 1: sum of two integers
+public int sum(int x, int y) {}
+
+Method 2: same name, but sum of three integers
+public int sum(int x, int y, int z) {}</pre>
+
+            <h2>Dynamic Polymorphism</h2>
+            <p><strong>Definition:</strong> The method in the child class must have the exact same name, number of parameters, and data types as the method in the parent class.</p>
+            <pre>class Animal {
+    public void makeSound() {
+        // Parent class default implementation
+    }
+}
+
+class Dog extends Animal {
+    // Child class overrides the parent's method
+    @Override
+    public void makeSound() {
+        // Specific implementation for Dog
+    }
+}</pre>
+        `
+    },
+    {
+        title: "Upcasting Polymorphism",
+        content: `
+            <h2>UPCASTING POLYMORPHISM</h2>
+            <pre>// 1. Superclass
+class Mama {
+    public void startArgument() {
+        System.out.println("Matulog ka ng maaga");
+    }
+}
+
+// 2. Subclass
+class Son extends Mama {
+    @Override
+    public void startArgument() {
+        System.out.println("Okay Mom, matutulog ako maaga");
+    }
+
+    public void ComputerShop() {
+        System.out.println("Pumunta ng Computer Shop");
+    }
+}
+
+public class UpcastingDemo1 {
+    public static void main(String[] args) {
+        // Create a Car object
+        Son carl = new Son();
+        
+        // --- UPCASTING OCCURS HERE ---
+        // A reference of the Superclass type (Mama) points to a Subclass object (Son).
+        Mama mom = carl; // Implicit Upcasting
+
+        System.out.print("POV u lied to ur parents");
+        carl.startArgument(); // Calls the Son's implementation
+        //output: Okay Mom, matutulog ako maaga
+
+        carl.ComputerShop(); // Accesses Son's specific method (imong talent ba)
+        //output: Pumunta ng Computer Shop
+
+        System.out.print("Caring & Concerned Mom");
+        mom.startArgument(); // Calls the Son's implementation (Polymorphism in action!)
+        //output: Okay Mom, matutulog ako maaga (wonder why not the output: Matulog ka ng maaga? it's because of upcasting the Mama mom = carl)
+        
+        /*
+        unless, If the object was a direct Mama instance:
+        Mama urMother = new Mama();
+        urMother.startArgument();
+        output would be: Matulog ka ng maaga
+        */
+
+        // mom.ComputerShop(); // ERROR: Cannot access subclass-specific methods through the superclass reference.
+        //basically hindi niya alam kase hindi mo naman sinasabi hahaha
+    }
+}</pre>
+        `
+    },
+    {
+        title: "Downcasting Polymorphism",
+        content: `
+            <h2>DOWNCASTING POLYMORPHISM</h2>
+            <pre>// 1. Superclass
+class Mama {
+    public void startArgument() {
+        System.out.println("Matulog ka ng maaga");
+    }
+}
+
+// 2. Subclass
+class Son extends Mama {
+    @Override
+    public void startArgument() {
+        System.out.println("Okay Mom, matutulog ako maaga");
+    }
+
+    public void ComputerShop() {
+        System.out.println("Pumunta ng Computer Shop");
+    }
+}
+
+public class DowncastingDemo1 {
+    public static void main(String[] args) {
+        
+        // Step 1: Upcast (Safe and Implicit)
+        // 'mom' reference points to a Son object.
+        Mama mom = new Son(); 
+        
+        // mom.ComputerShop(); // ERROR: ComputerShop() is inaccessible via Mama reference.
+        //mga talent mong magaling magsinungaling at mag lihim haha
+
+        // Step 2: Downcast (Required and Explicit)
+        // We explicitly cast the Mama reference back to a Son type.
+        Son carl = (Son)mom; 
+        
+        // Step 3: Access Subclass Method
+        carl.ComputerShop(); // SUCCESS: We can now call the specific Son method.
+        carl.startArgument(); // Also calls the overridden Son method.
+    }
+}</pre>
+        `
+    },
+    {
+        title: "Rules in Casting Object",
+        content: `
+            <h2>RULES in CASTING OBJECT</h2>
+            <h3>Rule: Inheritance Relationship</h3>
+            <p>You can only cast between a class and its superclasses, subclasses, or implemented interfaces.</p>
+            <pre>class A {}
+class B {} // No inheritance relationship
+// wala silang relationship tropa pang stranger lang sila. bawal
+
+A objA = new A(); // Object is only an A
+// B objB = (B) objA; // COMPILER ERROR: Cannot cast A to B, kase nga stranger lang sila</pre>
+
+            <h3>Casting a Superclass Object to a Subclass:</h3>
+            <pre>Animal a = new Animal(); // Object is only an Animal
+Dog d = (Dog) a;  // CRASH! The Animal object is NOT a Dog.</pre>
+        `
+    },
+    {
+        title: "Rules in Overriding Methods",
+        content: `
+            <h2>Rules in Overriding Methods</h2>
+            
+            <h3>1. Signature Rule</h3>
+            <p>The method in the child class must have the same signature as the method in the parent class. Same name, Same parameters, Same methods.</p>
+            <pre>public class ClassA {
+    public String message() { 
+        return "Method";
+    }
+}
+public class ClassB extends ClassA {
+    // Correctly overrides: same name (message) and same parameters (none)
+    public String message() { 
+        return "Overriding";
+    }
+}</pre>
+
+            <h3>2. Access Modifier Rule</h3>
+            <p>The method in the child class must be at least as accessible (or more accessible) than the method in the parent class.</p>
+            <pre>public class ClassA {
+    protected String message() { // Superclass is protected
+        return "Method";
+    }
+}
+public class ClassB extends ClassA {
+    // The method is marked protected and private in the subclass.
+    private String message() { // Fails: Visibility reduced from protected to private
+        return "Overriding";
+    }
+} // This code will not compile.</pre>
+
+            <h3>3. Exception Rule</h3>
+            <p>The rule: The overriding method in the subclass cannot throw a checked exception that is new or broader than the one declared in the superclass method.</p>
+            <pre>public class ClassA {
+    public String message() throws ArithmeticException { // Unchecked
+        return "Method";
+    }
+}
+public class ClassB extends ClassA {
+    // Fails: Throws a broader checked exception (Exception) than superclass throws (ArithmeticException is unchecked).
+    public String message() throws Exception { 
+        return "Overriding";
+    }
+} // This code will not compile.</pre>
+        `
+    }
+];
+
+function shuffle(array){
+    for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+const exploreButton = document.getElementById("explore-btn");
+const quizContainer = document.getElementById("quiz-container");
+const studyContainer = document.getElementById("study-container");
+const sectionContent = document.getElementById("section-content");
+const nextSectionBtn = document.getElementById("next-section-btn");
+const playAgainBtn = document.getElementById("play-again-btn");
+const sectionIndicator = document.getElementById("section-indicator");
+
+let currentQuestionIndex = 0;
+let score = 0;
+let currentSectionIndex = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+    exploreButton.style.display = "none";
+    quizContainer.style.display = "block";
+    studyContainer.style.display = "none";
+
+    shuffle(questions);
+    questions.forEach(q => shuffle(q.answers));
+
+    showQuestion();
+}
+
+function showQuestion(){
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+function resetState(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+    exploreButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+function showStudySection(){
+    quizContainer.style.display = "none";
+    studyContainer.style.display = "block";
+    currentSectionIndex = 0;
+    displaySection();
+}
+
+function displaySection(){
+    const section = studySections[currentSectionIndex];
+    sectionContent.innerHTML = section.content;
+    sectionIndicator.innerHTML = `Section ${currentSectionIndex + 1} of ${studySections.length}`;
+    
+    if(currentSectionIndex === studySections.length - 1){
+        nextSectionBtn.innerHTML = "Finish";
+    } else {
+        nextSectionBtn.innerHTML = "Next Section";
+    }
+    nextSectionBtn.style.display = "inline-block";
+}
+
+function nextSection(){
+    if(currentSectionIndex < studySections.length - 1){
+        currentSectionIndex++;
+        displaySection();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        startQuiz();
+    }
+}
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+exploreButton.addEventListener("click", ()=>{
+    showStudySection();
+});
+
+nextSectionBtn.addEventListener("click", ()=>{
+    nextSection();
+});
+
+playAgainBtn.addEventListener("click", ()=>{
+    startQuiz();
+});
+
+startQuiz();
+
+</script>
+</html>

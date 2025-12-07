@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+body{
+    background: #001e4d;
+}
+.app{
+    background: #fff;
+    width: 90%;
+    max-width: 1000px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: #001e4d;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    padding-bottom: 30px;
+}
+.quiz{
+    padding: 20px 0;
+}
+.quiz h2{
+    font-size: 18px;
+    color: #001e4d;
+    font-weight: 600;
+}
+.btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 100%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn:hover:not([disabled]){
+    background: #222;
+    color: #fff;
+}
+.btn:disabled{
+    cursor: no-drop;
+}
+#next-btn, #explore-btn, #next-section-btn{
+    background: #001e4d;
+    color: #fff;
+    font-weight: 500;
+    width: 150px;
+    border: 0;
+    padding: 10px;
+    margin: 20px 10px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+#explore-btn{
+    background: #28a745;
+}
+#next-section-btn{
+    background: #ff6b6b;
+}
+.button-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.correct{
+    background: #9aeabc;
+}
+.incorrect{
+    background: #ff9393;
+}
+.study-section{
+    display: none;
+}
+.study-section h2{
+    color: #001e4d;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+.study-section h3{
+    color: #28a745;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+.study-section p{
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #333;
+}
+.study-section pre{
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    border-left: 4px solid #001e4d;
+}
+.section-indicator{
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-top: 20px;
+}
+#play-again-btn{
+   display: inline-block; 
+   background: #001e4d; color: #fff; 
+   font-weight: 500; 
+   width: 150px; 
+   border: 0; 
+   padding: 10px; 
+   margin: 20px 10px 0; 
+   border-radius: 4px; 
+   cursor: pointer;
+}
+    </style>
+</head>
+
+<body>
+    
+    <div class="app">
+        <h1>Simple Quiz</h1>
+        <div class="quiz" id="quiz-container">
+            <h2 id="question">Question Goes Here</h2>
+            <div id="answer-buttons">
+                <button class="btn">Answer 1</button>
+                <button class="btn">Answer 2</button>
+                <button class="btn">Answer 3</button>
+                <button class="btn">Answer 4</button>
+            </div>
+            <div class="button-container">
+                <button id="next-btn">Next</button>
+                <button id="explore-btn">Explore</button>
+            </div>
+        </div>
+
+        <div class="study-section" id="study-container">
+            <div id="section-content"></div>
+            <div class="section-indicator" id="section-indicator"></div>
+            <div class="button-container">
+                <button id="next-section-btn">Next Section</button>
+                <button id="play-again-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script>
+
+
+const questions = [
+    {
+        question: "What is the main purpose of creating an Abstract Class in Java?",
+        answers: [
+            { text: "To prevent any class from inheriting it.", correct: false},
+            { text: "To provide a blueprint that ensures subclasses will implement necessary methods.", correct: true},
+            { text: "To allow the class to be instantiated with the 'new' keyword.", correct: false},
+            { text: "To make all its methods static and final.", correct: false},
+        ]
+    },
+    {
+        question: "What is a defining characteristic of an Abstract Method?",
+        answers: [
+            { text: "It must be private.", correct: false},
+            { text: "It has a complete method body enclosed in braces.", correct: false},
+            { text: "It has no body and is declared without braces, ending with a semicolon.", correct: true},
+            { text: "It can only be declared in a final class.", correct: false},
+        ]
+    },
+    {
+        question: "Which code snippet correctly demonstrates an abstract method?",
+        answers: [
+            { text: "public void doWork();", correct: false},
+            { text: "abstract void calculate() {}", correct: false},
+            { text: "abstract void run();", correct: true},
+            { text: "public abstract String getName() {}", correct: false},
+        ]
+    },
+    {
+        question: "In Java, this is primarily a collection of related abstract public methods, as well as default, static, and constant declarations",
+        answers: [
+            { text: "class", correct: false},
+            { text: "implements", correct: false},
+            { text: "abstract", correct: false},
+            { text: "interface", correct: true},
+        ]
+    },
+    {
+        question: "In a Java interface, what are the three implicit modifiers for any field (variable) declared?",
+        answers: [
+            { text: "private, static, final", correct: false},
+            { text: "public, protected, final", correct: false},
+            { text: "public, static, final", correct: true},
+            { text: "default, static, final", correct: false},
+        ]
+    },
+    {
+        question: "A class can implement multiple interfaces",
+        answers: [
+            { text: "public class Water extends InterfaceName{}", correct: false},
+            { text: "public class Water implements InterfaceName{}", correct: true},
+            { text: "public class Water interface InterfaceName{}", correct: false},
+            { text: "you should sleep", correct: false},
+        ]
+    },
+    {
+        question: "A Java class can directly inherit from only one class, but it can work around this limitation by doing what?",
+        answers: [
+            { text: "Extending multiple abstract classes.", correct: false},
+            { text: "Implementing multiple interfaces.", correct: true},
+            { text: "Using the 'final' keyword on its methods.", correct: false},
+            { text: "Declaring itself as an abstract class.", correct: false},
+        ]
+    },
+    {
+        question: "In the example `public abstract class Pet { public abstract void eat (); }`, what keyword makes the `Pet` class unable to be instantiated directly?",
+        answers: [
+            { text: "public", correct: false},
+            { text: "void", correct: false},
+            { text: "abstract", correct: true},
+            { text: "class", correct: false},
+        ]
+    },
+    {
+        question: "If a class implements an interface, what is required for all the interface's abstract methods?",
+        answers: [
+            { text: "They must be declared static.", correct: false},
+            { text: "They must be called in the implementing class's constructor.", correct: false},
+            { text: "They must be overridden as abstract methods.", correct: false},
+            { text: "They must be implemented (given a method body) by the class.", correct: true},
+        ]
+    },
+    {
+        question: "Which modifier is *not* implicitly applied to the methods in a traditional (pre-Java 8) interface?",
+        answers: [
+            { text: "public", correct: false},
+            { text: "static", correct: false},
+            { text: "abstract", correct: false},
+            { text: "final", correct: true},
+        ]
+    }
+];
+
+const studySections = [
+    {
+        title: "Rules in Defining Abstract Classes",
+        content: `
+            <h2>Rules in Defining Abstract Classes</h2>
+            <ul>
+                <li><strong>Cannot be Instantiated Directly:</strong> An abstract class cannot be instantiated directly using the <code>new</code> keyword.</li>
+                <pre>// Example (Will not compile/run):
+public abstract class Pet { 
+    public static void main(String[] args) { 
+        Pet p = new Pet(); // ERROR: Cannot instantiate the abstract class Pet
+    } 
+}</pre>
+                <br>
+                <li><strong>Can Include Non-Abstract Members:</strong> An abstract class may include both non-abstract (concrete) methods, variables, and constructors, in addition to abstract methods.</li>
+                <pre>// Example:
+public abstract class Pet { 
+    public abstract void eat (); // Abstract method
+    public void drink() { 
+        // Concrete method implementation
+    } 
+}</pre>
+                <br>
+                <li><strong>Cannot be Marked as 'final':</strong> An abstract class must be able to be extended by a subclass (so its abstract methods can be implemented), so it cannot be marked as <code>final</code>.</li>
+                <pre>// Example (Will not compile):
+public final abstract class Pet{} // ERROR: Illegal combination of modifiers: final and abstract</pre>
+            </ul>
+        `
+    },
+    {
+        title: "Rules in Defining Abstract Methods",
+        content: `
+            <h2>Rules in Defining Abstract Methods</h2>
+            <ul>
+                <li><strong>Must be in an Abstract Class:</strong> An abstract method may only be defined within an abstract class.</li>
+                <pre>// Example (Will not compile):
+public class Pet { // Non-abstract class
+    public abstract void eat (); // ERROR: Abstract method in non-abstract class
+}</pre>
+                <br>
+                <li><strong>Cannot be Marked as 'final':</strong> An abstract method must be overridden in the first concrete subclass, so it cannot be marked as <code>final</code> (since <code>final</code> methods cannot be overridden).</li>
+                <pre>// Example (Will not compile):
+public abstract class Pet {
+    public final abstract void eat(); // ERROR: Illegal combination of modifiers: final and abstract
+}</pre>
+                <br>
+                <li><strong>Cannot be Marked as 'private':</strong> An abstract method must be accessible to subclasses so they can override it. Therefore, it cannot be marked as <code>private</code> (since private methods are not inherited/visible).</li>
+                <pre>// Example (Will not compile):
+public abstract class Pet {
+    private abstract void eat(); // ERROR: Illegal combination of modifiers: private and abstract
+}</pre>
+            </ul>
+        `
+    },
+    {
+        title: "Rule for Overriding Abstract Methods",
+        content: `
+            <h2>Rule for Overriding Abstract Methods</h2>
+            <ul>
+                <li><strong>Full Signature Match is Required (Except for Return Type in Specific Cases):</strong> To override an abstract method, the subclass method must have the **same name, parameter types, and return type** (or a covariant return type, in Java versions supporting it).</li>
+                <pre>// Example (Illustrating a common error based on the prompt's content):
+public abstract class Pet { 
+    public abstract int getAge(); // Return type is 'int' 
+}
+public class Cat extends Pet { 
+    // This example will fail to compile because 'double' is not a valid return type for overriding 'int'
+    public double getAge(){} // ERROR: Attempting to change the return type to 'double'
+}</pre>
+                <br>
+                <p><strong>Correction:</strong> For a successful override, the signature must match exactly, or use a **covariant return type** (a subclass of the original return type, which is only possible for reference types, not primitive types like <code>int</code>).</p>
+                <pre>// Correct Overriding Example:
+public abstract class Pet { 
+    public abstract int getAge(); 
+}
+public class Cat extends Pet { 
+    // Correct override: same name, same parameters, same return type 'int'
+    @Override
+    public int getAge(){
+        return 5; // Implementation provided
+    }
+}</pre>
+            </ul>
+        `
+    },
+    {
+        title: "Rules in Defining an Interface",
+        content: `
+            <h2>Rules in Defining an Interface</h2>
+            <ul>
+                <li><strong>Instantiation:</strong> An interface **cannot be instantiated** directly.</li>
+                <pre>// Incorrect:
+Drinkable d = new Drinkable();</pre>
+                <br>
+                <li><strong>Method Requirement:</strong> It is **not required** for an interface to have a method (though it's unusual).</li>
+                <br>
+                <li><strong>The <code>final</code> Modifier:</strong> An interface **cannot be marked as <code>final</code>**.</li>
+                <br>
+                <li><strong>The <code>abstract</code> Modifier:</strong> Interfaces are **implicitly <code>abstract</code>**. Adding the keyword <code>abstract</code> is redundant.</li>
+                <br>
+                <li><strong>Method Visibility:</strong> All abstract, default, and static methods in an interface are **implicitly <code>public</code>**.</li>
+            </ul>
+        `
+    },
+    {
+        title: "Rules in Inheriting an Interface",
+        content: `
+            <h2>Rules in Inheriting an Interface</h2>
+            <ul>
+                <li><strong>Multiple Interfaces (Implementation):</strong> A class can implement **multiple interfaces**.</li>
+                <pre>public class Water implements Drinkable, Canned { ... }</pre>
+                <br>
+                <li><strong>Interface Extension:</strong> An interface uses the **<code>extends</code>** keyword to inherit from one or more other interfaces.</li>
+                <pre>public interface Sellable extends Drinkable, Potable { ... }</pre>
+                <br>
+                <li><strong>Abstract Class Implementation:</strong> An **abstract class** that implements an interface is **not required** to implement the interface's abstract methods.</li>
+                <pre>public abstract class Water implements Drinkable, Canned { ... } 
+// Water does not need to implement getNumGlasses() or getStringContent().</pre>
+                <br>
+                <li><strong>Concrete Class Implementation:</strong> The **first concrete class** (non-abstract) that extends the abstract class **must implement all inherited interface methods**.</li>
+                <pre>// If class Juice extends Water { ... }, then Juice must implement 
+// getNumGlasses() and getStringContent().</pre>
+                <br>
+                <li><strong>Class Cannot Extend Interface:</strong> A class **cannot extend** an interface.</li>
+                <pre>// Does not compile:
+public class Water extends Drinkable {}</pre>
+                <br>
+                <li><strong>Interface Cannot Extend Class:</strong> An interface **cannot extend** a class.</li>
+                <pre>// Does not compile:
+public interface Drinkable extends Water {}</pre>
+            </ul>
+        `
+    },
+    {
+        title: "Rules in Implementing an Interface (Method Conflicts)",
+        content: `
+            <h2>Rules in Implementing an Interface (Method Conflicts)</h2>
+            <ul>
+                <li><strong>Same Signature (Legal):</strong> A class can implement two or more interfaces that contain the **exact same method signature** (same name, parameters, and return type). The implementing class provides only **one** method implementation.</li>
+                <pre>// If Drinkable and Canned both have: public int getNumGlasses()
+public class Carl implements Drinkable, Canned { 
+    public int getNumGlasses() { /* ... */ } 
+}</pre>
+                <br>
+                <li><strong>Overloaded Methods (Legal):</strong> A class can implement interfaces containing methods that are **overloaded** (same name, but different parameter lists). The class must implement **all** versions.</li>
+                <pre>// If Drinkable has getNumGlasses() and Canned has getNumGlasses(int num)
+// The class must implement both methods.</pre>
+                <br>
+                <li><strong>Different Return Types (Illegal):</strong> A class **cannot** implement interfaces that contain methods with the **same signature** but **different return types**. This creates an impossible conflict.</li>
+                <pre>// Example (Illegal): 
+// Drinkable has: public int getNumGlasses()
+// Canned has: public void getNumGlasses()
+// This conflict prevents compilation.</pre>
+            </ul>
+        `
+    }
+];
+
+function shuffle(array){
+    for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+const exploreButton = document.getElementById("explore-btn");
+const quizContainer = document.getElementById("quiz-container");
+const studyContainer = document.getElementById("study-container");
+const sectionContent = document.getElementById("section-content");
+const nextSectionBtn = document.getElementById("next-section-btn");
+const playAgainBtn = document.getElementById("play-again-btn");
+const sectionIndicator = document.getElementById("section-indicator");
+
+let currentQuestionIndex = 0;
+let score = 0;
+let currentSectionIndex = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+    exploreButton.style.display = "none";
+    quizContainer.style.display = "block";
+    studyContainer.style.display = "none";
+
+    shuffle(questions);
+    questions.forEach(q => shuffle(q.answers));
+
+    showQuestion();
+}
+
+function showQuestion(){
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+function resetState(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+    exploreButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+function showStudySection(){
+    quizContainer.style.display = "none";
+    studyContainer.style.display = "block";
+    currentSectionIndex = 0;
+    displaySection();
+}
+
+function displaySection(){
+    const section = studySections[currentSectionIndex];
+    sectionContent.innerHTML = section.content;
+    sectionIndicator.innerHTML = `Section ${currentSectionIndex + 1} of ${studySections.length}`;
+    
+    if(currentSectionIndex === studySections.length - 1){
+        nextSectionBtn.innerHTML = "Finish";
+    } else {
+        nextSectionBtn.innerHTML = "Next Section";
+    }
+    nextSectionBtn.style.display = "inline-block";
+}
+
+function nextSection(){
+    if(currentSectionIndex < studySections.length - 1){
+        currentSectionIndex++;
+        displaySection();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        startQuiz();
+    }
+}
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+exploreButton.addEventListener("click", ()=>{
+    showStudySection();
+});
+
+nextSectionBtn.addEventListener("click", ()=>{
+    nextSection();
+});
+
+playAgainBtn.addEventListener("click", ()=>{
+    startQuiz();
+});
+
+startQuiz();
+
+</script>
+</html>

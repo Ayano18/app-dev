@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAP5</title>
+    
+<style>
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* === Container === */
+    #quiz-container {
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    /* === Titles === */
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #4338ca;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      color: #4338ca;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    /* === Question Area === */
+    #question-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1.5rem;
+    }
+
+    /* === Options === */
+    #options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .option-button {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      text-align: left;
+      background-color: #f3f4f6;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      color: #374151;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option-button:hover:not(:disabled) {
+      background-color: #e0e7ff;
+      border-color: #6366f1;
+      transform: scale(1.01);
+    }
+
+    .option-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    /* === Feedback === */
+    #feedback-area {
+      margin-top: 1.2rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+
+    .bg-green-100 {
+      background-color: #dcfce7;
+    }
+
+    .bg-red-100 {
+      background-color: #fee2e2;
+    }
+
+    .text-green-700 {
+      color: #15803d;
+    }
+
+    .text-red-700 {
+      color: #b91c1c;
+    }
+    
+    
+
+
+    /* === Next Button === */
+    #next-button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.9rem;
+      background-color: #4f46e5;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #next-button:hover:not(:disabled) {
+      background-color: #4338ca;
+      transform: scale(1.02);
+    }
+
+    #next-button:disabled {
+      background-color: #a5b4fc;
+      cursor: not-allowed;
+    }
+
+    /* === Results === */
+    #results-container {
+      text-align: center;
+      display: none;
+    }
+
+    #final-score {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #1f2937;
+    }
+
+    #total-questions {
+      font-size: 1.5rem;
+      color: #6b7280;
+    }
+
+    #score-message {
+      font-size: 1rem;
+      color: #4b5563;
+      margin-bottom: 1.5rem;
+    }
+
+    button.restart {
+      padding: 0.6rem 1.5rem;
+      background-color: #16a34a;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button.restart:hover {
+      background-color: #15803d;
+      transform: scale(1.02);
+    }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div id="quiz-container">
+    <h1>SAP5</h1>
+    <div id="quiz-content">
+      <div id="question-area">
+        <p id="question-text"></p>
+        <div id="options-container"></div>
+      </div>
+
+      <div id="feedback-area"></div>
+
+      <button id="next-button" onclick="nextQuestion()" disabled>Next Question</button>
+    </div>
+
+    <div id="results-container">
+      <h2>Quiz Complete!</h2>
+      <p>
+        <span id="final-score">0</span> / <span id="total-questions">40</span>
+      </p>
+      <p id="score-message"></p>
+      <button class="restart" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+  </div>
+
+    <script>
+        // Store the original definitions extracted from the images (40 items), with bolding removed from answers
+                    
+        const originalQuizData = [
+  {
+    question: "What does SAP Enterprise Asset Management (EAM) primarily focus on?",
+    correctAnswer: "Managing, maintaining, inspecting, and repairing plants and business assets",
+    options: [
+      "Creating marketing strategies",
+      "Managing, maintaining, inspecting, and repairing plants and business assets",
+      "Developing software systems",
+      "Tracking financial performance"
+    ]
+  },
+  {
+    question: "Proactively managing maintenance, unexpected breakdowns are lessened, eventually increasing critical asset reliability",
+    correctAnswer: "Increased Asset Reliability",
+    options: [
+      "Cost Saving",
+      "Compliance and Safety",
+      "Increased Asset Reliability",
+      "Improved Efficiency"
+    ]
+  },
+  {
+    question: "Leads to reduced downtime, faster response time, and optimized resource utilization?",
+    correctAnswer: "Improved Efficiency",
+    options: [
+      "Increased Asset Reliability",
+      "Improved Efficiency",
+      "Cost Saving",
+      "Compliance and Safety"
+    ]
+  },
+  {
+    question: "Through better asset management, businesses can control maintenance expenses, minimize unnecessary parts, and extend the lifespan of assets",
+    correctAnswer: "Cost Saving",
+    options: [
+      "Cost Saving",
+      "Improved Efficiency",
+      "Compliance and Safety",
+      "Increased Asset Reliability"
+    ]
+  },
+  {
+    question: "The business can  meet regulatory compliance requirements and ensure that safety standards are upheld",
+    correctAnswer: "Compliance and Safety",
+    options: [
+      "Improved Efficiency",
+      "Increased Asset Reliability",
+      "Compliance and Safety",
+      "Cost Saving"
+    ]
+  },
+  {
+    question: "In SAP, what represents an independent environment within the system?",
+    correctAnswer: "Client",
+    options: ["Company Code", "Plant", "Client", "Storage Location"]
+  },
+  {
+    question: "What is the smallest organizational unit",
+    correctAnswer: "Company Code",
+    options: ["Plant", "Client", "Company Code", "Maintenance Plant"]
+  },
+  {
+    question: "Which SAP term refers to the operating area or branch within a company?",
+    correctAnswer: "Plant",
+    options: ["Client", "Company Code", "Plant", "Storage Location"]
+  },
+  {
+    question: "What organizational unit allows differentiation between various material stocks within a plant?",
+    correctAnswer: "Storage Location",
+    options: ["Plant", "Storage Location", "Maintenance Plant", "Client"]
+  },
+  {
+    question: "In which SAP plant are the technical objects of a company installed. It has oriented organizational units such as Location, Plant Section, and Work Center.",
+    correctAnswer: "Maintenance Plant",
+    options: ["Planning Plant", "Maintenance Plant", "Storage Location", "Plant Section"]
+  },
+  {
+    question: "The plant in which maintenance tasks are planned and prepared",
+    correctAnswer: "Maintenance Planning Plant",
+    options: [
+      "Maintenance Planning Plant",
+      "Maintenance Plant",
+      "Client",
+      "Company Code"
+    ]
+  },
+  {
+    question: "What is the hierarchically organized structure representing a technical system or location where maintenance is performed?",
+    correctAnswer: "Functional Location",
+    options: ["Equipment", "Functional Location", "Plant Section", "Work Center"]
+  },
+  {
+    question: "What is the physical object for which maintenance tasks are planned and performed?",
+    correctAnswer: "Equipment",
+    options: ["Functional Location", "Equipment", "Bill of Material", "Notification"]
+  },
+  {
+    question: "What is the complete structured list of all components in SAP EAM?",
+    correctAnswer: "Bill of Material",
+    options: ["Notification", "Planning", "Bill of Material", "Equipment"]
+  },
+  {
+    question: "What SAP document informs maintenance that something needs fixing or immediate attention?",
+    correctAnswer: "Notification",
+    options: ["Planning", "Notification", "Order", "Implementation"]
+  },
+  {
+    question: "A notification normally triggers the order creating and order planning include the steps to be performed, required parts, and any tooling.",
+    correctAnswer: "Planning",
+    options: ["Implementation and Completion", "Notification", "Planning", "Monitoring"]
+  },
+  {
+    question: "Which SAP EAM phase involves performing planned and unplanned materials withdrawals such as goods issues?",
+    correctAnswer: "Implementation and Completion",
+    options: ["Planning", "Notification", "Implementation and Completion", "Maintenance"]
+  }
+];
+
+        let quizData = []; // This will hold the shuffled questions
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+        
+        // Helper function to shuffle an array (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Generate the UUID used for a simple, temporary user ID for auth in this context
+        const userId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'temp-user-id';
+
+        // Display the current question and options
+        function loadQuestion() {
+            // Re-shuffle the options for the current question
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            // Generate options array including the correct answer and three incorrect options
+            const allOptions = [...currentQuestion.options];
+
+            // Shuffle the options to prevent the correct answer from always being in the same spot
+            const shuffledOptions = shuffleArray(allOptions);
+            
+            answered = false;
+            
+            document.getElementById('question-text').textContent = (currentQuestionIndex + 1) + ". " + currentQuestion.question;
+            document.getElementById('feedback-area').classList.add('hidden');
+            document.getElementById('next-button').disabled = true;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add(
+                    'option-button', 
+                    'w-full', 'p-4', 'text-left', 'bg-gray-100', 'rounded-lg', 'shadow-sm', 
+                    'hover:bg-indigo-100', 'hover:border-indigo-500', 'border-2', 'border-gray-200',
+                    'transition', 'duration-200', 'text-gray-700', 'font-medium'
+                );
+                button.setAttribute('data-answer', option);
+                button.onclick = () => checkAnswer(button, option, currentQuestion.correctAnswer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Check the user's answer
+        function checkAnswer(selectedButton, selectedAnswer, correctAnswer) {
+            if (answered) return;
+            answered = true;
+            
+            const options = document.querySelectorAll('.option-button');
+            const feedbackArea = document.getElementById('feedback-area');
+            
+            // Disable all buttons after one is selected
+            options.forEach(btn => btn.disabled = true);
+            
+            // Handle visual feedback and scoring
+            if (selectedAnswer === correctAnswer) {
+                score++;
+                selectedButton.classList.remove('bg-gray-100', 'hover:bg-indigo-100');
+                selectedButton.classList.add('bg-green-100', 'border-green-500');
+                feedbackArea.textContent = 'Correct! That is the right definition.';
+                feedbackArea.classList.remove('bg-red-100', 'text-red-700');
+                feedbackArea.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                selectedButton.classList.remove('bg-gray-100', 'hover:bg-indigo-100');
+                selectedButton.classList.add('bg-red-100', 'border-red-500');
+                feedbackArea.textContent = `Incorrect. The correct answer was: ${correctAnswer}.`;
+                feedbackArea.classList.remove('bg-green-100', 'text-green-700');
+                feedbackArea.classList.add('bg-red-100', 'text-red-700');
+                
+                // Highlight the correct answer
+                options.forEach(btn => {
+                    if (btn.getAttribute('data-answer') === correctAnswer) {
+                        btn.classList.add('bg-green-200', 'border-green-600');
+                    }
+                });
+            }
+            
+            feedbackArea.classList.remove('hidden');
+            document.getElementById('next-button').disabled = false;
+        }
+
+        // Move to the next question or show results
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Display final score
+        function showResults() {
+  document.getElementById('quiz-content').style.display = 'none';
+  document.getElementById('results-container').style.display = 'block';
+
+  document.getElementById('final-score').textContent = score;
+  const total = quizData.length;
+  document.getElementById('total-questions').textContent = total;
+
+  const percentage = (score / total) * 100;
+  let message = '';
+
+  if (percentage === 100) {
+    message = "Perfect score! You are a master of File I/O concepts.";
+  } else if (percentage >= 70) {
+    message = "Great job! You have a strong understanding of these concepts.";
+  } else if (percentage >= 50) {
+    message = "Good attempt! Review the definitions to solidify your knowledge.";
+  } else {
+    message = "Keep studying! Reviewing the terms and their descriptions will help a lot.";
+  }
+
+  document.getElementById('score-message').textContent = message;
+}
+
+function restartQuiz() {
+  quizData = shuffleArray([...originalQuizData]);
+  currentQuestionIndex = 0;
+  score = 0;
+  document.getElementById('results-container').style.display = 'none';
+  document.getElementById('quiz-content').style.display = 'block';
+  loadQuestion();
+}
+
+        
+        // Initial setup function
+        function initializeQuiz() {
+             // 1. Shuffle the questions right before the first load
+            quizData = shuffleArray([...originalQuizData]);
+            // 2. Update the total questions display
+            document.getElementById('total-questions').textContent = quizData.length;
+            // 3. Load the first question
+            loadQuestion();
+        }
+
+        // Initialize the quiz on load
+        window.onload = initializeQuiz;
+    </script>
+</body>
+</html>

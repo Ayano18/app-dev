@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File I/O Concepts Quiz</title>
+    
+<style>
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* === Container === */
+    #quiz-container {
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    /* === Titles === */
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #4338ca;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      color: #4338ca;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    /* === Question Area === */
+    #question-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1.5rem;
+    }
+
+    /* === Options === */
+    #options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .option-button {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      text-align: left;
+      background-color: #f3f4f6;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      color: #374151;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option-button:hover:not(:disabled) {
+      background-color: #e0e7ff;
+      border-color: #6366f1;
+      transform: scale(1.01);
+    }
+
+    .option-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    /* === Feedback === */
+    #feedback-area {
+      margin-top: 1.2rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+
+    .bg-green-100 {
+      background-color: #dcfce7;
+    }
+
+    .bg-red-100 {
+      background-color: #fee2e2;
+    }
+
+    .text-green-700 {
+      color: #15803d;
+    }
+
+    .text-red-700 {
+      color: #b91c1c;
+    }
+
+    /* === Next Button === */
+    #next-button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.9rem;
+      background-color: #4f46e5;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #next-button:hover:not(:disabled) {
+      background-color: #4338ca;
+      transform: scale(1.02);
+    }
+
+    #next-button:disabled {
+      background-color: #a5b4fc;
+      cursor: not-allowed;
+    }
+
+    /* === Results === */
+    #results-container {
+      text-align: center;
+      display: none;
+    }
+
+    #final-score {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #1f2937;
+    }
+
+    #total-questions {
+      font-size: 1.5rem;
+      color: #6b7280;
+    }
+
+    #score-message {
+      font-size: 1rem;
+      color: #4b5563;
+      margin-bottom: 1.5rem;
+    }
+
+    button.restart {
+      padding: 0.6rem 1.5rem;
+      background-color: #16a34a;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button.restart:hover {
+      background-color: #15803d;
+      transform: scale(1.02);
+    }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div id="quiz-container">
+    <h1>File I/O Concepts Quiz (40 Questions)</h1>
+    <div id="quiz-content">
+      <div id="question-area">
+        <p id="question-text"></p>
+        <div id="options-container"></div>
+      </div>
+
+      <div id="feedback-area"></div>
+
+      <button id="next-button" onclick="nextQuestion()" disabled>Next Question</button>
+    </div>
+
+    <div id="results-container">
+      <h2>Quiz Complete!</h2>
+      <p>
+        <span id="final-score">0</span> / <span id="total-questions">40</span>
+      </p>
+      <p id="score-message"></p>
+      <button class="restart" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+  </div>
+
+    <script>
+        // Store the original definitions extracted from the images (40 items), with bolding removed from answers
+        const originalQuizData = [
+            {
+                question: "Which general term represents a source that provides a sequence of bytes, such as a file, an I/O device, or a TCP/IP socket?",
+                correctAnswer: "Streams",
+                options: ["FileStream", "StreamReader", "Streams", "Channel"]
+            },
+            {
+                question: "Which term refers to a printer, remote server location, or a destination where the data is written?",
+                correctAnswer: "Output streams",
+                options: ["Where data is read from memory.", "A class for reading characters.", "Output streams", "A memory buffer for I/O operations."]
+            },
+            {
+                question: "Which term refers to a file or any source where the data can be read and assigned to the memory variables in the program?",
+                correctAnswer: "Input streams",
+                options: ["A destination where data is saved.", "Input streams", "A synchronous data pipe.", "A buffer for writing data."]
+            },
+            {
+                question: "Which class is used to create a byte-oriented stream attached to a file?",
+                correctAnswer: "FileStream",
+                options: ["StreamReader", "StreamWriter", "FileStream", "MemoryStream"]
+            },
+            {
+                question: "The **mode** parameter in `FileStream` specifies what?",
+                correctAnswer: "Specifies how the file needs to be opened.",
+                options: ["Specifies the access rights (Read/Write).", "Specifies the buffer size.", "Specifies how the file needs to be opened.", "Specifies the character encoding."]
+            },
+            {
+                question: "Which `FileMode` option creates a new output file, overwriting it if it already exists?",
+                correctAnswer: "`FileMode.Create`",
+                options: ["`FileMode.OpenOrCreate`", "`FileMode.Append`", "`FileMode.CreateNew`", "`FileMode.Create`"]
+            },
+            {
+                question: "Which `FileMode` option creates a new output file, but throws an exception if a file already exists?",
+                correctAnswer: "`FileMode.CreateNew`",
+                options: ["`FileMode.Create`", "`FileMode.CreateNew`", "`FileMode.Open`", "`FileMode.Truncate`"]
+            },
+            {
+                question: "Which `FileMode` option is used simply to open an existing file?",
+                correctAnswer: "`FileMode.Open`",
+                options: ["`FileMode.Create`", "`FileMode.Truncate`", "`FileMode.Open`", "`FileMode.CreateNew`"]
+            },
+            {
+                question: "Which `FileMode` option opens an existing file, but creates a new one if it does not exist?",
+                correctAnswer: "`FileMode.OpenOrCreate`",
+                options: ["`FileMode.OpenOrCreate`", "`FileMode.Create`", "`FileMode.Append`", "`FileMode.New`"]
+            },
+            {
+                question: "Which `FileMode` option opens an existing file and instantly clears its content?",
+                correctAnswer: "`FileMode.Truncate`",
+                options: ["`FileMode.Clear`", "`FileMode.Truncate`", "`FileMode.Create`", "`FileMode.Empty`"]
+            },
+            {
+                question: "Which `FileStream` method reads a single byte from a file and returns it as an integer value?",
+                correctAnswer: "`ReadByte()`",
+                options: ["`Read()`", "`Close()`", "`ReadByte()`", "`WriteByte()`"]
+            },
+            {
+                question: "Which `FileStream` method reads the specified number of bytes from a file into an array?",
+                correctAnswer: "`Read()`",
+                options: ["`ReadByte()`", "`Seek()`", "`Write()`", "`Read()`"]
+            },
+            {
+                question: "Which `FileStream` method writes the specified byte into the file?",
+                correctAnswer: "`WriteByte()`",
+                options: ["`Write()`", "`Flush()`", "`WriteByte()`", "`ReadByte()`"]
+            },
+            {
+                question: "Which `FileStream` method writes an array of bytes into the file?",
+                correctAnswer: "`Write()`",
+                options: ["`WriteByte()`", "`Flush()`", "`Seek()`", "`Write()`"]
+            },
+            {
+                question: "Which `FileStream` method instantly writes buffered data into the file?",
+                correctAnswer: "`Flush()`",
+                options: ["`Close()`", "`Seek()`", "`Write()`", "`Flush()`"]
+            },
+            {
+                question: "Which `FileStream` method closes the file, releasing the system resources that are allocated to it?",
+                correctAnswer: "`Close()`",
+                options: ["`Flush()`", "`Seek()`", "`Dispose()`", "`Close()`"]
+            },
+            {
+                question: "Which method allows setting the file position indicator (file pointer) to the preferred location in the file?",
+                correctAnswer: "`Seek()`",
+                options: ["`Flush()`", "`Close()`", "`Write()`", "`Seek()`"]
+            },
+            {
+                question: "Which stream property returns true if the stream can be read?",
+                correctAnswer: "`CanRead`",
+                options: ["`CanWrite`", "`CanSeek`", "`CanTimeout`", "`CanRead`"]
+            },
+            {
+                question: "Which stream property returns true if the stream supports position requests?",
+                correctAnswer: "`CanSeek`",
+                options: ["`CanWrite`", "`CanRead`", "`CanTimeout`", "`CanSeek`"]
+            },
+            {
+                question: "Which stream property returns true if the stream can time out?",
+                correctAnswer: "`CanTimeout`",
+                options: ["`CanWrite`", "`CanSeek`", "`CanRead`", "`CanTimeout`"]
+            },
+            {
+                question: "Which stream property returns true if the stream can be written?",
+                correctAnswer: "`CanWrite`",
+                options: ["`CanRead`", "`CanSeek`", "`CanTimeout`", "`CanWrite`"]
+            },
+            {
+                question: "Which stream property contains the size of the stream in bytes?",
+                correctAnswer: "`Length`",
+                options: ["`Position`", "`WriteTimeout`", "`ReadTimeout`", "`Length`"]
+            },
+            {
+                question: "Which stream property indicates the time before a timeout occurs for read operations?",
+                correctAnswer: "`ReadTimeout`",
+                options: ["`WriteTimeout`", "`Length`", "`Position`", "`ReadTimeout`"]
+            },
+            {
+                question: "Which stream property indicates the time before a timeout occurs for write operations?",
+                correctAnswer: "`WriteTimeout`",
+                options: ["`ReadTimeout`", "`Length`", "`Position`", "`WriteTimeout`"]
+            },
+            {
+                question: "Which class is used to write characters to a byte stream?",
+                correctAnswer: "StreamWriter",
+                options: ["StreamReader", "StreamWriter", "FileStream", "BinaryWriter"]
+            },
+            {
+                question: "The constructor `StreamWriter(Stream stream)` is used to create what type of stream?",
+                correctAnswer: "A character-based output stream.",
+                options: ["A binary input stream.", "A byte-based file stream.", "A character-based output stream.", "An unbuffered memory stream."]
+            },
+            {
+                question: "The constructor `StreamWriter(string fileName)` is used for which primary purpose?",
+                correctAnswer: "To open a file directly by its name.",
+                options: ["To require an existing stream object.", "To open a file directly by its name.", "To require a stream position.", "To specify the character encoding."]
+            },
+            {
+                question: "What is the function of the `Close()` method in `StreamWriter`?",
+                correctAnswer: "Closes the stream and releases resources.",
+                options: ["It deletes the file.", "It saves content but keeps the file open.", "Closes the stream and releases resources.", "It only flushes the buffer."]
+            },
+            {
+                question: "Which method in `StreamWriter` instantly saves the file content from the buffer to the underlying stream?",
+                correctAnswer: "`Flush()`",
+                options: ["`Close()`", "`Write()`", "`Seek()`", "`Flush()`"]
+            },
+            {
+                question: "What is the primary function of the `Write()` method in `StreamWriter`?",
+                correctAnswer: "To write characters into the specified file or stream.",
+                options: ["To write only single bytes.", "To write only to the console.", "To write characters into the specified file or stream.", "To write only numeric data."]
+            },
+            {
+                question: "Which method in `StreamWriter` writes a string to a file followed by a line terminator?",
+                correctAnswer: "`WriteLine()`",
+                options: ["`Write()`", "`WriteChar()`", "`WriteNext()`", "`WriteLine()`"]
+            },
+            {
+                question: "Which class is used to read characters from a byte stream?",
+                correctAnswer: "StreamReader",
+                options: ["BinaryReader", "StreamWriter", "StreamReader", "CharacterStream"]
+            },
+            {
+                question: "The constructor `StreamReader(Stream stream)` is used to specify what?",
+                correctAnswer: "The name of an open stream (e.g., I/O device or file).",
+                options: ["The file name to open.", "The character encoding to use.", "The name of an open stream (e.g., I/O device or file).", "The size of the reading buffer."]
+            },
+            {
+                question: "The constructor `StreamReader(string fileName)` is used to specify what?",
+                correctAnswer: "The name of the file to open.",
+                options: ["The memory location.", "The size of the buffer.", "The name of the file to open.", "The stream object."]
+            },
+            {
+                question: "What is the function of the `Flush()` method in `StreamReader`?",
+                correctAnswer: "It instantly saves the file content from the buffer to memory.",
+                options: ["It closes the reader.", "It discards the buffer content.", "It instantly saves the file content from the buffer to memory.", "It moves the file pointer." ]
+            },
+            {
+                question: "What is the function of the `Close()` method in `StreamReader`?",
+                correctAnswer: "Closes the file and is a mandatory operation.",
+                options: ["Checks if the file is closed.", "Closes the file and is a mandatory operation.", "Flushes the buffer only.", "Deletes the file."]
+            },
+            {
+                question: "Which method in `StreamReader` reads content from the file stream?",
+                correctAnswer: "`Read()`",
+                options: ["`ReadLine()`", "`ReadToEnd()`", "`Peek()`", "`Read()`"]
+            },
+            {
+                question: "Which method in `StreamReader` reads content line by line from the file stream?",
+                correctAnswer: "`ReadLine()`",
+                options: ["`Read()`", "`ReadToEnd()`", "`Peek()`", "`ReadLine()`"]
+            },
+            {
+                question: "Which method in `StreamReader` reads all characters from the current location until the end of the stream?",
+                correctAnswer: "`ReadToEnd()`",
+                options: ["`Read()`", "`ReadLine()`", "`Peek()`", "`ReadToEnd()`"]
+            },
+            {
+                question: "Which method in `StreamReader` returns the next available value in the stream without moving the file pointer?",
+                correctAnswer: "`Peek()`",
+                options: ["`Read()`", "`ReadLine()`", "`ReadToEnd()`", "`Peek()`"]
+            }
+        ];
+
+        let quizData = []; // This will hold the shuffled questions
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+        
+        // Helper function to shuffle an array (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Generate the UUID used for a simple, temporary user ID for auth in this context
+        const userId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'temp-user-id';
+
+        // Display the current question and options
+        function loadQuestion() {
+            // Re-shuffle the options for the current question
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            // Generate options array including the correct answer and three incorrect options
+            const allOptions = [...currentQuestion.options];
+
+            // Shuffle the options to prevent the correct answer from always being in the same spot
+            const shuffledOptions = shuffleArray(allOptions);
+            
+            answered = false;
+            
+            document.getElementById('question-text').textContent = (currentQuestionIndex + 1) + ". " + currentQuestion.question;
+            document.getElementById('feedback-area').classList.add('hidden');
+            document.getElementById('next-button').disabled = true;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add(
+                    'option-button', 
+                    'w-full', 'p-4', 'text-left', 'bg-gray-100', 'rounded-lg', 'shadow-sm', 
+                    'hover:bg-indigo-100', 'hover:border-indigo-500', 'border-2', 'border-gray-200',
+                    'transition', 'duration-200', 'text-gray-700', 'font-medium'
+                );
+                button.setAttribute('data-answer', option);
+                button.onclick = () => checkAnswer(button, option, currentQuestion.correctAnswer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Check the user's answer
+        function checkAnswer(selectedButton, selectedAnswer, correctAnswer) {
+            if (answered) return;
+            answered = true;
+            
+            const options = document.querySelectorAll('.option-button');
+            const feedbackArea = document.getElementById('feedback-area');
+            
+            // Disable all buttons after one is selected
+            options.forEach(btn => btn.disabled = true);
+            
+            // Handle visual feedback and scoring
+            if (selectedAnswer === correctAnswer) {
+                score++;
+                selectedButton.classList.remove('bg-gray-100', 'hover:bg-indigo-100');
+                selectedButton.classList.add('bg-green-100', 'border-green-500');
+                feedbackArea.textContent = 'Correct! That is the right definition.';
+                feedbackArea.classList.remove('bg-red-100', 'text-red-700');
+                feedbackArea.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                selectedButton.classList.remove('bg-gray-100', 'hover:bg-indigo-100');
+                selectedButton.classList.add('bg-red-100', 'border-red-500');
+                feedbackArea.textContent = `Incorrect. The correct answer was: ${correctAnswer}.`;
+                feedbackArea.classList.remove('bg-green-100', 'text-green-700');
+                feedbackArea.classList.add('bg-red-100', 'text-red-700');
+                
+                // Highlight the correct answer
+                options.forEach(btn => {
+                    if (btn.getAttribute('data-answer') === correctAnswer) {
+                        btn.classList.add('bg-green-200', 'border-green-600');
+                    }
+                });
+            }
+            
+            feedbackArea.classList.remove('hidden');
+            document.getElementById('next-button').disabled = false;
+        }
+
+        // Move to the next question or show results
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Display final score
+        function showResults() {
+  document.getElementById('quiz-content').style.display = 'none';
+  document.getElementById('results-container').style.display = 'block';
+
+  document.getElementById('final-score').textContent = score;
+  const total = quizData.length;
+  document.getElementById('total-questions').textContent = total;
+
+  const percentage = (score / total) * 100;
+  let message = '';
+
+  if (percentage === 100) {
+    message = "Perfect score! You are a master of File I/O concepts.";
+  } else if (percentage >= 70) {
+    message = "Great job! You have a strong understanding of these concepts.";
+  } else if (percentage >= 50) {
+    message = "Good attempt! Review the definitions to solidify your knowledge.";
+  } else {
+    message = "Keep studying! Reviewing the terms and their descriptions will help a lot.";
+  }
+
+  document.getElementById('score-message').textContent = message;
+}
+
+function restartQuiz() {
+  quizData = shuffleArray([...originalQuizData]);
+  currentQuestionIndex = 0;
+  score = 0;
+  document.getElementById('results-container').style.display = 'none';
+  document.getElementById('quiz-content').style.display = 'block';
+  loadQuestion();
+}
+
+        
+        // Initial setup function
+        function initializeQuiz() {
+             // 1. Shuffle the questions right before the first load
+            quizData = shuffleArray([...originalQuizData]);
+            // 2. Update the total questions display
+            document.getElementById('total-questions').textContent = quizData.length;
+            // 3. Load the first question
+            loadQuestion();
+        }
+
+        // Initialize the quiz on load
+        window.onload = initializeQuiz;
+    </script>
+</body>
+</html>

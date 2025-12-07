@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAP PS 35-Item Quiz</title>
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        .quiz-container {
+            max-width: 800px;
+        }
+        .option-btn {
+            transition: all 0.2s;
+        }
+        .option-btn:hover:not(.disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        .correct {
+            background-color: #10B981 !important; /* bg-emerald-500 */
+            color: white !important;
+            border-color: #059669 !important; /* border-emerald-600 */
+        }
+        .incorrect {
+            background-color: #EF4444 !important; /* bg-red-500 */
+            color: white !important;
+            border-color: #DC2626 !important; /* border-red-600 */
+        }
+        .disabled {
+            cursor: not-allowed;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    <div id="app" class="quiz-container mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-extrabold text-gray-800">SAP Project System (PS) Concepts Quiz</h1>
+            <p class="text-md text-gray-500">Test your knowledge on 35 key terms and definitions.</p>
+        </header>
+
+        <!-- Quiz Container -->
+        <div id="quiz-content" class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
+            <div id="question-area">
+                <!-- Question and options will be rendered here -->
+                <div class="text-center">
+                    <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-150 ease-in-out">
+                        Start Quiz
+                    </button>
+                </div>
+            </div>
+
+            <div id="progress-bar" class="mt-6 h-2 bg-gray-200 rounded-full overflow-hidden hidden">
+                <div id="progress" class="h-2 bg-blue-500 transition-all duration-300"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use a unique App ID for Firebase/Firestore purposes if storage were needed, but for this local quiz, we use a constant.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-quiz-app';
+
+        // --- QUIZ DATA (35 Questions) ---
+        const quizData = [
+            // Extracted from Screenshots
+            {
+                keyword: "SAP Project Management or Project System (PS)",
+                definition: "Which module oversees projects, tasks, and timelines while identifying critical paths, assigning resources, and tracking progress?",
+                correct: "SAP Project Management or Project System (PS)",
+                distractors: ["Hierarchy Graphic", "WBS Elements", "Easy Cost Planning"]
+            },
+            {
+                keyword: "Projects",
+                definition: "These are complex tasks found in several components of the SAP system such as Sales and Distribution, Controlling, Finance, and Materials Management.",
+                correct: "Projects",
+                distractors: ["Activities", "Milestones", "Direct Settlement"]
+            },
+            {
+                keyword: "Project builder",
+                definition: "What SAP tool allows users to edit projects quickly and efficiently and is where all data is prepared using only one (1) transaction?",
+                correct: "Project builder",
+                distractors: ["Information system", "Project Planning board", "Calculation Key"]
+            },
+            {
+                keyword: "WBS Elements",
+                definition: "Refers to the Work Breakdown Structure. It describes either a concrete activity or a sub-activity that can be further subdivided into work.",
+                correct: "WBS Elements",
+                distractors: ["Milestones", "Projects", "Sequences"]
+            },
+            {
+                keyword: "work project",
+                definition: "A quantitative and qualitative description of an activity to be carried out in the project, such as the work to be done and the result to be achieved for a clearly defined task within the project.",
+                correct: "work project",
+                distractors: ["Activity Type", "Number of Required Capacities", "Work"]
+            },
+            {
+                keyword: "Sequence",
+                definition: "Consists of access sequences and relationships. It forms the basis for planning based on costs, revenues, payments, budgets, and schedules.",
+                correct: "Sequence",
+                distractors: ["Milestone Trend Analysis (MTA)", "Finish Series", "Start Series"]
+            },
+            {
+                keyword: "Hierarchy Graphic",
+                definition: "Allows the possibility to create access sequences in external processing and enable the change of internally processed activities to externally processed ones.",
+                correct: "Hierarchy Graphic",
+                distractors: ["Project Planning board", "Information system", "Project builder"]
+            },
+            {
+                keyword: "Activities",
+                definition: "Can be linked together by relationships to establish a chronological order. The resulting arrangement structure is called a network.",
+                correct: "Activities",
+                distractors: ["Projects", "WBS Elements", "Milestones"]
+            },
+            {
+                keyword: "network",
+                definition: "The resulting arrangement structure when activities are linked together by relationships to establish a chronological order.",
+                correct: "network",
+                distractors: ["Sequence", "Project builder", "Hierarchy Graphic"]
+            },
+            {
+                keyword: "Relationships",
+                definition: "Describe the chronological sequence in a network plan order standard network. There can be dependencies of a technical or logical nature.",
+                correct: "Relationships",
+                distractors: ["Milestone Functions", "Activity Type", "Work"]
+            },
+            {
+                keyword: "Normal Series",
+                definition: "What relationship type is defined as: from the end of one series to the beginning of another?",
+                correct: "Normal Series",
+                distractors: ["Start Series", "Finish Series", "Bounding Series"]
+            },
+            {
+                keyword: "Start Series",
+                definition: "What relationship type is defined as: from the beginning of one series to the beginning of another?",
+                correct: "Start Series",
+                distractors: ["Normal Series", "Finish Series", "Bounding Series"]
+            },
+            {
+                keyword: "Finish Series",
+                definition: "What relationship type is defined as: starting at the end of one series and going to the end of another series?",
+                correct: "Finish Series",
+                distractors: ["Normal Series", "Start Series", "Bounding Series"]
+            },
+            {
+                keyword: "Bounding Series",
+                definition: "What relationship type is defined as: from the beginning of one series to the end of another series?",
+                correct: "Bounding Series",
+                distractors: ["Normal Series", "Start Series", "Finish Series"]
+            },
+            {
+                keyword: "Internally and Externally processed activities",
+                definition: "These are two activity types distinguished by the Project System.",
+                correct: "Internally and Externally processed activities",
+                distractors: ["Normal and Bounding Series", "Direct and Multi-level Settlement", "Project Planning and Execution"]
+            },
+            {
+                keyword: "General costs activities",
+                definition: "An activity type distinguished by the Project System, often related to overhead or non-specific costs.",
+                correct: "General costs activities",
+                distractors: ["Project Planning board", "Project builder", "Information system"]
+            },
+            {
+                keyword: "Finish – Start (FS)",
+                definition: "The relationship between the end of an activity to the beginning of the following activity.",
+                correct: "Finish – Start (FS)",
+                distractors: ["Start – Start (SS)", "Finish – Finish (FF)", "Start – Finish (SF)"]
+            },
+            {
+                keyword: "Start – Start (SS)",
+                definition: "The relationship between the beginning of an activity to the beginning of the following activity.",
+                correct: "Start – Start (SS)",
+                distractors: ["Finish – Start (FS)", "Finish – Finish (FF)", "Start – Finish (SF)"]
+            },
+            {
+                keyword: "Finish – Finish (FF)",
+                definition: "The relationship between the end of an activity to the end of the following activity.",
+                correct: "Finish – Finish (FF)",
+                distractors: ["Finish – Start (FS)", "Start – Start (SS)", "Start – Finish (SF)"]
+            },
+            {
+                keyword: "Start – Finish (SF)",
+                definition: "The relationship from the beginning of an activity to the end of the following activity.",
+                correct: "Start – Finish (SF)",
+                distractors: ["Finish – Start (FS)", "Start – Start (SS)", "Finish – Finish (FF)"]
+            },
+            {
+                keyword: "Milestones",
+                definition: "These are used to mark transitions between different phases or departments. They can be used for additional tasks or functions in the project system.",
+                correct: "Milestones",
+                distractors: ["WBS Elements", "Activities", "Projects"]
+            },
+            {
+                keyword: "Milestone Trend Analysis (MTA)",
+                definition: "A simple and effective method of controlling dates in a project where milestone dates on different report dates are compared.",
+                correct: "Milestone Trend Analysis (MTA)",
+                distractors: ["Easy Cost Planning", "Information system", "Conducting earned value analysis using the Milestone Technique"]
+            },
+            {
+                keyword: "Conducting earned value analysis using the Milestone Technique",
+                definition: "One of the measurement techniques for determining the earned value in earned value analysis, where the milestone represents the portion of work that is completed in an activity or a WBS element.",
+                correct: "Conducting earned value analysis using the Milestone Technique",
+                distractors: ["Milestone Trend Analysis (MTA)", "Easy Cost Planning", "Determining Dates in the Billing Plan"]
+            },
+            {
+                keyword: "Determining Dates in the Billing Plan",
+                definition: "A milestone is linked with a date in this plan. When the milestone is reached, the actual date is copied into the plan.",
+                correct: "Determining Dates in the Billing Plan",
+                distractors: ["Direct Settlement", "Multi-level Settlement", "Project Planning board"]
+            },
+            {
+                keyword: "Triggering predefined Milestone Functions",
+                definition: "A series of events is triggered to process a particular business process with this feature.",
+                correct: "Triggering predefined Milestone Functions",
+                distractors: ["Project builder", "Calculation Key", "Easy Cost Planning"]
+            },
+            {
+                keyword: "Activity Type",
+                definition: "To cost networks, this must be defined for internal processing and a formula key for calculating costs.",
+                correct: "Activity Type",
+                distractors: ["Calculation Key", "Percent", "Work"]
+            },
+            {
+                keyword: "Work",
+                definition: "This is where the planned amount of work involved in the activity can be specified (e.g., engineering activity in hours or energy requirements in kilowatt-hours).",
+                correct: "Work",
+                distractors: ["Number of Required Capacities", "Activity Type", "Percent"]
+            },
+            {
+                keyword: "Number of Required Capacities",
+                definition: "This is where the capacity required to do the work in the activity can be specified (e.g., two people or three machines).",
+                correct: "Number of Required Capacities",
+                distractors: ["Work", "Activity Type", "Percent"]
+            },
+            {
+                keyword: "Percent",
+                definition: "With this value, the percentage of the work used in the activity is specified, and it is only used when the system can calculate duration, work, or number of capacities.",
+                correct: "Percent",
+                distractors: ["Calculation Key", "Work", "Activity Type"]
+            },
+            {
+                keyword: "Calculation Key",
+                definition: "Used for manually or systematically determining data for work, duration, and number of capacities required.",
+                correct: "Calculation Key",
+                distractors: ["Activity Type", "Percent", "Project builder"]
+            },
+            {
+                keyword: "Project Planning board",
+                definition: "Used in Project Planning as a graphical interface for project creation and preparation. It is used for termination, coordination of work, checking of capacity, and calculating costs.",
+                correct: "Project Planning board",
+                distractors: ["Project builder", "Hierarchy Graphic", "Information system"]
+            },
+            {
+                keyword: "Easy Cost Planning",
+                definition: "Enables cost planning based on amounts and characteristics. It is executed on the project structure level.",
+                correct: "Easy Cost Planning",
+                distractors: ["Direct Settlement", "Multi-level Settlement", "Milestone Trend Analysis (MTA)"]
+            },
+            {
+                keyword: "Direct Settlement",
+                definition: "Each object is settled directly to the external cost object (e.g., cost center, profitability segment).",
+                correct: "Direct Settlement",
+                distractors: ["Multi-level Settlement", "Easy Cost Planning", "Determining Dates in the Billing Plan"]
+            },
+            {
+                keyword: "Multi-level Settlement",
+                definition: "Individual objects in the project are settled to the higher-level WBS element first. It then settles the costs collected to the external receiver.",
+                correct: "Multi-level Settlement",
+                distractors: ["Direct Settlement", "Easy Cost Planning", "Conducting earned value analysis using the Milestone Technique"]
+            },
+            {
+                keyword: "Information system",
+                definition: "Used to evaluate key performance indicators within a project. It provides the user with reports, graphs, and an overview of performance, schedule, and costs.",
+                correct: "Information system",
+                distractors: ["Project Planning board", "Project builder", "Calculation Key"]
+            },
+        ];
+
+        let shuffledQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false; // Flag to prevent multiple answers per question
+
+        // Utility function to shuffle an array (Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Shuffles options for a single question
+        function shuffleOptions(question) {
+            const options = [question.correct, ...question.distractors];
+            shuffleArray(options);
+            return options;
+        }
+
+        // Start or Restart the quiz
+        function startQuiz() {
+            // Deep copy and shuffle the main quiz data
+            shuffledQuestions = JSON.parse(JSON.stringify(quizData));
+            shuffleArray(shuffledQuestions);
+
+            // Shuffle options for each question
+            shuffledQuestions.forEach(q => {
+                q.options = shuffleOptions(q);
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('progress-bar').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        // Render the current question to the DOM
+        function renderQuestion() {
+            if (currentQuestionIndex >= shuffledQuestions.length) {
+                showResults();
+                return;
+            }
+
+            isAnswered = false;
+            const q = shuffledQuestions[currentQuestionIndex];
+            const total = shuffledQuestions.length;
+
+            const questionHtml = `
+                <p class="text-xs text-gray-500 mb-2">Question ${currentQuestionIndex + 1} of ${total}</p>
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                    ${q.definition}
+                </h2>
+                <div id="options-container" class="space-y-4">
+                    ${q.options.map((option, index) => `
+                        <button
+                            data-answer="${option}"
+                            onclick="selectAnswer(this, '${q.correct}')"
+                            class="option-btn w-full text-left p-4 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-medium transition duration-150 ease-in-out shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        >
+                            ${String.fromCharCode(65 + index)}. ${option}
+                        </button>
+                    `).join('')}
+                </div>
+                <div id="feedback-area" class="mt-4 p-3 rounded-lg hidden"></div>
+                <div class="mt-8 flex justify-between items-center">
+                    <p class="text-lg font-bold text-gray-700">Score: <span id="current-score">${score} / ${total}</span></p>
+                    <button id="next-btn" onclick="nextQuestion()" class="bg-gray-400 text-white font-bold py-2 px-4 rounded-lg transition duration-150 ease-in-out disabled" disabled>
+                        Next Question
+                    </button>
+                </div>
+            `;
+            document.getElementById('question-area').innerHTML = questionHtml;
+            updateProgressBar();
+        }
+
+        // Update the progress bar visually
+        function updateProgressBar() {
+            const progressElement = document.getElementById('progress');
+            const total = shuffledQuestions.length;
+            const percentage = ((currentQuestionIndex) / total) * 100;
+            progressElement.style.width = `${percentage}%`;
+        }
+
+        // Handle option selection
+        function selectAnswer(selectedButton, correctAnswer) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const selectedAnswer = selectedButton.getAttribute('data-answer');
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackArea = document.getElementById('feedback-area');
+            const nextButton = document.getElementById('next-btn');
+
+            // Disable all buttons and iterate to style them
+            Array.from(optionsContainer.children).forEach(button => {
+                button.classList.add('disabled');
+                const buttonAnswer = button.getAttribute('data-answer');
+
+                if (buttonAnswer === correctAnswer) {
+                    button.classList.add('correct');
+                } else if (button === selectedButton && selectedAnswer !== correctAnswer) {
+                    button.classList.add('incorrect');
+                }
+            });
+
+            // Update score and feedback
+            if (selectedAnswer === correctAnswer) {
+                score++;
+                feedbackArea.textContent = "Correct! Well done.";
+                feedbackArea.classList.add('bg-emerald-100', 'text-emerald-700');
+            } else {
+                feedbackArea.textContent = `Incorrect. The correct answer was: ${correctAnswer}`;
+                feedbackArea.classList.add('bg-red-100', 'text-red-700');
+            }
+
+            // Show feedback and enable next button
+            feedbackArea.classList.remove('hidden');
+            document.getElementById('current-score').textContent = `${score} / ${shuffledQuestions.length}`;
+            nextButton.classList.remove('disabled', 'bg-gray-400');
+            nextButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            nextButton.disabled = false;
+        }
+
+        // Move to the next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            renderQuestion();
+        }
+
+        // Show final results screen
+        function showResults() {
+            document.getElementById('progress-bar').classList.add('hidden');
+            const resultHtml = `
+                <div class="text-center py-10">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Quiz Finished!</h2>
+                    <p class="text-2xl mb-8">Your Final Score is:</p>
+                    <p class="text-6xl font-extrabold text-blue-600">${score} / ${shuffledQuestions.length}</p>
+                    <p class="text-lg text-gray-600 mt-2">(${((score / shuffledQuestions.length) * 100).toFixed(1)}%)</p>
+                    <button onclick="startQuiz()" class="mt-10 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-150 ease-in-out">
+                        Retry Quiz (Shuffle Questions)
+                    </button>
+                </div>
+            `;
+            document.getElementById('question-area').innerHTML = resultHtml;
+        }
+
+    </script>
+</body>
+</html>

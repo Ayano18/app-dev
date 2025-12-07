@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAP WM Terminology Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563EB; /* Blue-600 */
+            --primary-light: #60A5FA; /* Blue-400 */
+            --success-color: #10B981; /* Emerald-500 */
+            --error-color: #EF4444; /* Red-500 */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .option-button {
+            transition: all 0.2s;
+            cursor: pointer;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .option-button:hover:not([disabled]) {
+            background-color: #eff6ff; /* Blue-50 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .option-button.correct {
+            background-color: #D1FAE5; /* Emerald-100 */
+            border-color: var(--success-color);
+        }
+
+        .option-button.incorrect {
+            background-color: #FEE2E2; /* Red-100 */
+            border-color: var(--error-color);
+        }
+
+        .submit-button {
+            background-color: black;
+        }
+        .submit-button:hover {
+            background-color: #1d4ed8; /* Blue-700 */
+        }
+        .submit-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex items-start justify-center">
+    <div id="quiz-container" class="w-full max-w-4xl bg-white shadow-2xl rounded-xl p-6 md:p-10">
+        <header class="mb-8 border-b pb-4">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-2">SAP WM Concepts Quiz</h1>
+            <p class="text-gray-600">Match the definition to the correct term. There are <span id="total-questions" class="font-bold"></span> questions.</p>
+        </header>
+
+        <div id="quiz-content">
+            <!-- Questions will be dynamically inserted here -->
+        </div>
+
+        <div id="results" class="hidden mt-10 p-6 md:p-8 bg-gray-50 border-t-4 border-primary-color rounded-lg text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Quiz Complete!</h2>
+            <p class="text-4xl font-extrabold mb-6 text-primary-color">Your Score: <span id="score-display">0/0</span></p>
+            <button id="retry-button" onclick="initializeQuiz()"
+                    class="submit-button bg-primary-color text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-primary-light">
+                Retry Quiz
+            </button>
+        </div>
+
+        <div id="quiz-controls" class="mt-8 pt-4 border-t flex justify-end">
+            <button id="submit-button" onclick="submitQuiz()"
+                    class="submit-button bg-primary-color text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-primary-light">
+                Submit Quiz
+            </button>
+        </div>
+
+        <div id="message-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white p-6 rounded-lg shadow-2xl w-full max-w-sm text-center">
+                <p id="modal-text" class="text-lg font-semibold mb-4 text-gray-800"></p>
+                <button onclick="document.getElementById('message-modal').classList.add('hidden')"
+                        class="bg-primary-color text-white py-2 px-4 rounded-md hover:bg-primary-light">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Data Source ---
+        const rawQuizData = [
+            { term: "Warehouse", definition: "is a facility for storing goods used by manufacturers, importers, exporters, wholesalers, transport, and customs, among others." },
+            { term: "SAP Warehouse Management (WM)", definition: "is a solution to manage standard warehouses, including stock and storage and bin locations management, picking and packing strategies, and shipping." },
+            { term: "Client", definition: "an independent environment in the system." },
+            { term: "Company Code", definition: "the smallest organizational unit where a legal set of books can be maintained." },
+            { term: "Plant", definition: "the operating area of a branch within the company. It can be a manufacturing, distribution, purchasing, or maintenance facility." },
+            { term: "Storage Location", definition: "an organizational unit allowing differentiation between the various stocks of material in a plant." },
+            { term: "Warehouse Number", definition: "identifies a complex, physical warehouse structure within the warehouse management system. It is the highest level of organizational unit in warehouse management." },
+            { term: "Storage Type", definition: "a subdivision of a complex and physical warehouse. It is identified by its warehousing techniques, the form of the organization, or its function." },
+            { term: "Storage Section", definition: "a logical or physical subdivision of a storage type. It also groups a series of similar storage bins." },
+            { term: "Picking Area", definition: "groups storage bins together from the standpoint of picking strategies." },
+            { term: "Warehouse Door", definition: "marks the point where the means of transport change to internal transportation." },
+            { term: "Allocation Zone", definition: "a temporary storage of goods that have just arrived or will be shipped soon." },
+            { term: "Shipping Point", definition: "responsible for the type of shipping, the necessary shipping materials, and the means of transport." },
+            { term: "Storage Bin", definition: "the smallest addressable unit in a warehouse, which identifies the location in the warehouse where goods can be stored. It is the lowest level of organizational structure." },
+            { term: "Warehouse Level", definition: "contains all indicators and fields valid for the whole warehouse." },
+            { term: "Storage Type Level", definition: "contains all indicators that are only valid for specific storage types." },
+            { term: "Material Master", definition: "It contains all the information a company needs to manage a material. It is used by most components within the SAP system, including Sales and Distribution, Materials Management, Production, Plant Maintenance, Accounting/Controlling, and Quality Management." },
+            { term: "Hazard Master Data", definition: "It stores the data concerning hazardous materials such as flammable liquids and toxic and radioactive materials. It includes General Data that specifies the Stroge Class, Water Pollution Class, Flash Point, Aggregate State, Hazardous Material Warning, and Hazardous Substance Number." },
+            { term: "Batch Master Data", definition: "It is a subset of material or homogeneous series of unreproducible units with a unique specification. It has different areas wherein information can be specified, such as Basic Data 1 & 2 (Expiration Date, Inspection Date, Trading Data, Administration Data, and Text Data), Classification of Batch, and Material Data." },
+            { term: "transfer posting", definition: "occurs during Stock-to-Stock, Material-to-Material, and Consignment-to-Warehouse organizational levels." },
+            { term: "Stock-to-stock transfer", definition: "wherein if goods must be withdrawn from a blocked or quality inspection stock, a transfer posting must be done first to the unrestricted-use stock." },
+            { term: "Stock transfer", definition: "can take place at three (3) organizational levels: Storage Location to Storage Location transfer; Plant-to-Plant transfer; Company Code to Company Code transfer." },
+            { term: "Stock in quality inspection", definition: "Stock that is currently undergoing quality checks and cannot be used for unrestricted consumption or sale." },
+            { term: "Unrestricted-use stock", definition: "Stock that is freely available for use, consumption, or sale." },
+            { term: "One-Step Procedure", definition: "does two (2) steps simultaneously during a stock transfer from the Issuing Organizational Level to the Receiving Organizational Level. It does not use Stock In Transfer." },
+            { term: "Two-Step Procedure", definition: "shows two (2) separate steps during a stock transfer, using the Stock in Transfer this time." },
+            { term: "Stock Transport Order (STO)", definition: "is a purchase order used to request or instruct a plant to transport material from one plant to another (that is, to affect a long-distance physical stock transfer) within the same corporate enterprise." },
+            { term: "Purchase order", definition: "is the same as a stock transport order since these are technically purchased goods from the other plant, but it is a transport because the plants are under the same company code." },
+            { term: "Posting Change Notice (PCN)", definition: "It is generated by posting change processes in WM-administered stocks. It also has similar functionalities to Transfer Requests." },
+            { term: "Transfer Request (TR)", definition: "It is a request to transfer materials at a particular time from a source storage bin to a destination storage bin in a warehouse complex. It represents the expected and scheduled Goods Movement in WM." },
+            { term: "Transfer Order (TO)", definition: "The central documents for WM. Every material movement requires a transfer order. It has no difference between real and logical movement." }
+        ];
+
+        let questions = [];
+        let userAnswers = {}; // { q_index: selected_option_text }
+        const QUIZ_OPTIONS_COUNT = 4; // Total options per question
+
+        // --- Utility Functions ---
+
+        /**
+         * Shuffles an array in place (Fisher-Yates algorithm).
+         * @param {Array} array - The array to shuffle.
+         * @returns {Array} - The shuffled array.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * Generates a single question object with shuffled options.
+         * @param {Object} correctItem - The item containing the correct term and definition.
+         * @param {Array} allTerms - All possible terms (keywords) for distractor generation.
+         * @returns {Object} The complete question object.
+         */
+        function createQuestion(correctItem, allTerms) {
+            const correctAnswer = correctItem.term;
+            let options = [correctAnswer];
+
+            // Get distractor terms (incorrect answers)
+            const incorrectTerms = allTerms.filter(term => term !== correctAnswer);
+
+            // Select 3 unique random distractors
+            const shuffledDistractors = shuffleArray([...incorrectTerms]);
+            const distractors = shuffledDistractors.slice(0, QUIZ_OPTIONS_COUNT - 1);
+
+            options.push(...distractors);
+            
+            // Shuffle the options for the multiple-choice display
+            const shuffledOptions = shuffleArray(options);
+
+            return {
+                definition: correctItem.definition,
+                correctAnswer: correctAnswer,
+                options: shuffledOptions
+            };
+        }
+
+        /**
+         * Initializes the quiz: shuffles data, generates questions, and renders the UI.
+         */
+        function initializeQuiz() {
+            // 1. Reset state
+            userAnswers = {};
+            
+            // 2. Prepare data
+            const allTerms = rawQuizData.map(item => item.term);
+            const shuffledSourceData = shuffleArray([...rawQuizData]);
+
+            // 3. Generate questions with shuffled options
+            questions = shuffledSourceData.map(item => createQuestion(item, allTerms));
+
+            // 4. Update UI to initial state
+            document.getElementById('total-questions').textContent = questions.length;
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('quiz-controls').classList.remove('hidden');
+            document.getElementById('submit-button').disabled = false;
+            document.getElementById('quiz-content').innerHTML = ''; // Clear previous content
+
+            // 5. Render questions
+            renderQuestions();
+        }
+
+        /**
+         * Renders all generated questions to the DOM.
+         */
+        function renderQuestions() {
+            const quizContent = document.getElementById('quiz-content');
+            quizContent.innerHTML = questions.map((q, index) => {
+                const optionsHtml = q.options.map(option => `
+                    <label
+                        class="option-button block p-3 mb-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-gray-100"
+                        data-question-index="${index}"
+                        data-answer="${option}"
+                        onclick="selectAnswer(this, ${index}, '${option.replace(/'/g, "\\'")}')"
+                    >
+                        <input type="radio" name="question-${index}" value="${option}" class="hidden">
+                        <span class="ml-2 font-medium">${option}</span>
+                    </label>
+                `).join('');
+
+                return `
+                    <div class="mb-8 p-5 bg-white border border-gray-200 rounded-lg shadow-sm" id="question-block-${index}">
+                        <p class="text-xl font-semibold mb-4 text-gray-900">Question ${index + 1}:</p>
+                        <p class="text-lg mb-6 p-3 bg-blue-50 border-l-4 border-primary-light rounded-md text-gray-800">
+                            Which term matches this definition:
+                            <span class="block mt-2 italic font-normal">${q.definition}</span>
+                        </p>
+                        <div class="space-y-2">
+                            ${optionsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Handles the user selecting an answer for a specific question.
+         * @param {HTMLElement} element - The label element clicked.
+         * @param {number} qIndex - The index of the question.
+         * @param {string} answer - The selected answer text.
+         */
+        function selectAnswer(element, qIndex, answer) {
+            userAnswers[qIndex] = answer;
+            
+            // Visual feedback: Remove selection from siblings and highlight the selected one
+            const parent = element.closest('.space-y-2');
+            parent.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('bg-blue-200', 'ring-2', 'ring-primary-color', 'border-primary-color');
+            });
+            element.classList.add('bg-blue-200', 'ring-2', 'ring-primary-color', 'border-primary-color');
+        }
+
+        /**
+         * Submits the quiz, calculates the score, and displays results.
+         */
+        function submitQuiz() {
+            const numQuestions = questions.length;
+            const answeredCount = Object.keys(userAnswers).length;
+
+            if (answeredCount < numQuestions) {
+                // Show custom modal instead of alert()
+                const modal = document.getElementById('message-modal');
+                document.getElementById('modal-text').textContent = `Please answer all ${numQuestions} questions before submitting. You have answered ${answeredCount}.`;
+                modal.classList.remove('hidden');
+                return;
+            }
+
+            let correctCount = 0;
+
+            // Loop through questions to check answers and apply visual feedback
+            questions.forEach((q, index) => {
+                const selectedAnswer = userAnswers[index];
+                const isCorrect = selectedAnswer === q.correctAnswer;
+                const questionBlock = document.getElementById(`question-block-${index}`);
+
+                // Disable all options for this question
+                questionBlock.querySelectorAll('.option-button').forEach(btn => {
+                    btn.setAttribute('disabled', 'true');
+                    btn.onclick = null; // Remove click listener
+                    btn.style.cursor = 'default';
+                    btn.classList.remove('bg-blue-200', 'ring-2', 'ring-primary-color'); // Remove temporary selection highlight
+
+                    const optionText = btn.getAttribute('data-answer');
+
+                    if (optionText === q.correctAnswer) {
+                        // Highlight the correct answer
+                        btn.classList.add('correct');
+                    }
+
+                    if (optionText === selectedAnswer && !isCorrect) {
+                        // Highlight the user's incorrect choice
+                        btn.classList.add('incorrect');
+                    }
+                });
+
+                if (isCorrect) {
+                    correctCount++;
+                }
+            });
+
+            // Display results
+            document.getElementById('score-display').textContent = `${correctCount}/${numQuestions}`;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('quiz-controls').classList.add('hidden');
+            
+            // Scroll to the results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize the quiz when the page loads
+        window.onload = initializeQuiz;
+
+    </script>
+</body>
+</html>

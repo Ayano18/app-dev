@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+body{
+    background: #001e4d;
+}
+.app{
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: #001e4d;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    padding-bottom: 30px;
+}
+.quiz{
+    padding: 20px 0;
+}
+.quiz h2{
+    font-size: 18px;
+    color: #001e4d;
+    font-weight: 600;
+}
+.btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 100%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn:hover:not([disabled]){
+    background: #222;
+    color: #fff;
+}
+.btn:disabled{
+    cursor: no-drop;
+}
+#next-btn{
+    background: #001e4d;
+    color: #fff;
+    font-weight: 500;
+    width: 150px;
+    border: 0;
+    padding: 10px;
+    margin: 20px auto 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+.correct{
+    background: #9aeabc;
+}
+.incorrect{
+    background: #ff9393;
+}
+    </style>
+</head>
+
+<body>
+    
+    <div class="app">
+            <h1>Simple Quiz</h1>
+            <div class="quiz">
+                <h2 id="question">Question Goes Here</h2>
+                <div id="answer-buttons">
+                    <button class="btn">Answer 1</button>
+                    <button class="btn">Answer 2</button>
+                    <button class="btn">Answer 3</button>
+                    <button class="btn">Answer 4</button>
+                    <button class="btn">Answer 5</button>
+                    <button class="btn">Answer 6</button>
+                    <button class="btn">Answer 7</button>
+                    <button class="btn">Answer 8</button>
+                    <button class="btn">Answer 9</button>
+                    <button class="btn">Answer 10</button>
+                </div>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+
+</body>
+<script>
+
+    const questions = [
+    // --- Software Testing Levels ---
+    {
+        question: "What is the general activity of executing a system or component under specified conditions, observing or recording results?",
+        answers: [
+            { text: "Software Deployment", correct: false},
+            { text: "Software Development", correct: false},
+            { text: "Software testing", correct: true},
+            { text: "Software Compilation", correct: false},
+        ]
+    },
+    {
+        question: "Which testing level is performed by the developer on a completed module before its integration with other modules?",
+        answers: [
+            { text: "Integration testing", correct: false},
+            { text: "Acceptance testing", correct: false},
+            { text: "Unit testing", correct: true},
+            { text: "System testing", correct: false},
+        ]
+    },
+    {
+        question: "Which testing is performed on the integrated systems once all of the individual units work correctly in isolation?",
+        answers: [
+            { text: "Unit testing", correct: false},
+            { text: "Integration testing", correct: true},
+            { text: "System testing", correct: false},
+            { text: "Performance testing", correct: false},
+        ]
+    },
+    {
+        question: "Which testing level tests the functionality of an entire system together with interdependencies between system components?",
+        answers: [
+            { text: "Integration testing", correct: false},
+            { text: "System testing", correct: true},
+            { text: "Acceptance testing", correct: false},
+            { text: "Performance testing", correct: false},
+        ]
+    },
+    {
+        question: "The objective of this testing is to ensure that system performance is within the bounds specified by non-functional requirements.",
+        answers: [
+            { text: "Acceptance testing", correct: false},
+            { text: "Performance testing", correct: true},
+            { text: "System testing", correct: false},
+            { text: "Unit testing", correct: false},
+        ]
+    },
+    {
+        question: "Which testing level is performed by system users or customers before accepting the product?",
+        answers: [
+            { text: "System testing", correct: false},
+            { text: "Acceptance testing", correct: true},
+            { text: "Performance testing", correct: false},
+            { text: "Integration testing", correct: false},
+        ]
+    },
+    // --- Test Process Phases ---
+    {
+        question: "Which phase of the test process has the objective of evaluating the gathered requirements?",
+        answers: [
+            { text: "System and software design", correct: false},
+            { text: "Implementation design", correct: false},
+            { text: "Requirements analysis and specification", correct: true},
+            { text: "Intermediate design", correct: false},
+        ]
+    },
+    {
+        question: "Which phase partitions the requirement into hardware or software systems and builds the overall system architecture?",
+        answers: [
+            { text: "Intermediate design", correct: false},
+            { text: "System and software design", correct: true},
+            { text: "Requirements analysis and specification", correct: false},
+            { text: "System deployment", correct: false},
+        ]
+    },
+    {
+        question: "Which phase breaks the software system into components, with classes associated with each component?",
+        answers: [
+            { text: "System and software design", correct: false},
+            { text: "Intermediate design", correct: true},
+            { text: "Implementation design", correct: false},
+            { text: "System deployment", correct: false},
+        ]
+    },
+    {
+        question: "In which phase do the developers start writing and compiling classes and methods?",
+        answers: [
+            { text: "Intermediate design", correct: false},
+            { text: "Implementation design", correct: true},
+            { text: "System deployment", correct: false},
+            { text: "Requirements analysis and specification", correct: false},
+        ]
+    },
+    {
+        question: "What is the process of delivering a completed software product to clients, occurring at the end of the test process?",
+        answers: [
+            { text: "Implementation design", correct: false},
+            { text: "System deployment", correct: true},
+            { text: "Acceptance testing", correct: false},
+            { text: "System testing", correct: false},
+        ]
+    },
+    // --- Test Case Structure ---
+    {
+        question: "What is the software artifact with a set of test inputs, execution conditions, and expected results developed for a particular objective?",
+        answers: [
+            { text: "Test Procedure", correct: false},
+            { text: "Test Data", correct: false},
+            { text: "Test Plan", correct: false},
+            { text: "Test case", correct: true},
+        ]
+    },
+    {
+        question: "Which test case component provides a name and number to identify a test case?",
+        answers: [
+            { text: "Objective/Description", correct: false},
+            { text: "Test Case ID", correct: true},
+            { text: "Administrative details", correct: false},
+            { text: "Test Procedure", correct: false},
+        ]
+    },
+    {
+        question: "Which test case component outlines the reason for the test?",
+        answers: [
+            { text: "Test Procedure", correct: false},
+            { text: "Test Case ID", correct: false},
+            { text: "Objective/Description", correct: true},
+            { text: "Expected Result", correct: false},
+        ]
+    },
+    {
+        question: "Which test case component describes the activities or steps required on the part of the tester to carry out the test?",
+        answers: [
+            { text: "Expected Result", correct: false},
+            { text: "Test Procedure", correct: true},
+            { text: "Actual Result", correct: false},
+            { text: "Test Data", correct: false},
+        ]
+    },
+    {
+        question: "Which test case component specifies the input to enter into the system?",
+        answers: [
+            { text: "Expected Result", correct: false},
+            { text: "Actual Result", correct: false},
+            { text: "Test Data", correct: true},
+            { text: "Test Procedure", correct: false},
+        ]
+    },
+    {
+        question: "Which test case component is the predetermined outcome that the system should produce?",
+        answers: [
+            { text: "Actual Result", correct: false},
+            { text: "Expected Result", correct: true},
+            { text: "Status", correct: false},
+            { text: "Test Data", correct: false},
+        ]
+    },
+    {
+        question: "Which test case component is used for recording the outcome observed after the test case is executed?",
+        answers: [
+            { text: "Expected Result", correct: false},
+            { text: "Actual Result", correct: true},
+            { text: "Status", correct: false},
+            { text: "Remarks", correct: false},
+        ]
+    },
+    {
+        question: "Which test case component determines whether the test was a Pass or Fail?",
+        answers: [
+            { text: "Actual Result", correct: false},
+            { text: "Remarks", correct: false},
+            { text: "Status", correct: true},
+            { text: "Test Data", correct: false},
+        ]
+    },
+    {
+        question: "Which test case component allows for any comments on the test case or its execution?",
+        answers: [
+            { text: "Status", correct: false},
+            { text: "Remarks", correct: true},
+            { text: "Actual Result", correct: false},
+            { text: "Test Procedure", correct: false},
+        ]
+    },
+    {
+        question: "Which test case component includes the name of the tester carrying out the tests and the date of execution?",
+        answers: [
+            { text: "Objective/Description", correct: false},
+            { text: "Test Case ID", correct: false},
+            { text: "Administrative details", correct: true},
+            { text: "Test Procedure", correct: false},
+        ]
+    },
+    // --- Unit Testing & Types ---
+    {
+        question: "What is the activity of writing codes that tests other codes?",
+        answers: [
+            { text: "System testing", correct: false},
+            { text: "Acceptance testing", correct: false},
+            { text: "Integration testing", correct: false},
+            { text: "Unit Testing", correct: true},
+        ]
+    },
+    {
+        question: "Which testing approach is used to verify the internal logic and program statements of software components?",
+        answers: [
+            { text: "Black Box Testing", correct: false},
+            { text: "White Box Testing", correct: true},
+            { text: "Performance testing", correct: false},
+            { text: "Acceptance testing", correct: false},
+        ]
+    },
+    {
+        question: "Which testing approach derives tests from external descriptions, including specifications, requirements, and design?",
+        answers: [
+            { text: "White Box Testing", correct: false},
+            { text: "Black Box Testing", correct: true},
+            { text: "Unit Testing", correct: false},
+            { text: "Integration testing", correct: false},
+        ]
+    },
+    {
+        question: "JUnit and TestNG are open-source unit testing frameworks designed for which programming language?",
+        answers: [
+            { text: ".NET languages", correct: false},
+            { text: "Python", correct: false},
+            { text: "Java", correct: true},
+            { text: "C++", correct: false},
+        ]
+    },
+    {
+        question: "Which open-source unit testing framework is designed for all .NET languages?",
+        answers: [
+            { text: "JUnit", correct: false},
+            { text: "TestNG", correct: false},
+            { text: "NUnit", correct: true},
+            { text: "Mocha", correct: false},
+        ]
+    },
+    {
+        question: "What is the iterative process where tests for the code are written *before* writing the actual production code?",
+        answers: [
+            { text: "Agile Development", correct: false},
+            { text: "Behavior-Driven Development", correct: false},
+            { text: "Test-Driven Development", correct: true},
+            { text: "Waterfall Model", correct: false},
+        ]
+    },
+    // --- Software Deployment & Tools ---
+    {
+        question: "What is the process of delivering a completed software product to clients?",
+        answers: [
+            { text: "Software Testing", correct: false},
+            { text: "Software Deployment", correct: true},
+            { text: "System Integration", correct: false},
+            { text: "Requirements Analysis", correct: false},
+        ]
+    },
+    {
+        question: "Which software deployment tool feature eliminates the manual tasks of deploying software products?",
+        answers: [
+            { text: "Security", correct: false},
+            { text: "Updates", correct: false},
+            { text: "Monitoring", correct: false},
+            { text: "Automation", correct: true},
+        ]
+    },
+    {
+        question: "Which software deployment tool feature manages the permission settings of users and groups who can access the information in the software?",
+        answers: [
+            { text: "Automation", correct: false},
+            { text: "Security", correct: true},
+            { text: "Updates", correct: false},
+            { text: "Monitoring", correct: false},
+        ]
+    },
+    {
+        question: "Which software deployment tool feature automates system updates, scans vulnerabilities, and practices regular patch management?",
+        answers: [
+            { text: "Automation", correct: false},
+            { text: "Security", correct: false},
+            { text: "Updates", correct: true},
+            { text: "Monitoring", correct: false},
+        ]
+    },
+    {
+        question: "Which software deployment tool feature monitors and analyzes the activities and interactions of the software users?",
+        answers: [
+            { text: "Updates", correct: false},
+            { text: "Automation", correct: false},
+            { text: "Monitoring", correct: true},
+            { text: "Security", correct: false},
+        ]
+    },
+    {
+        question: "Which self-contained, open-source automation server is used to automate all activities related to building, testing, and deploying?",
+        answers: [
+            { text: "Octopus Deploy", correct: false},
+            { text: "Bamboo", correct: false},
+            { text: "Jenkins", correct: true},
+            { text: "SolarWinds Patch Manager", correct: false},
+        ]
+    },
+    {
+        question: "Which automated deployment tool is compatible with ASP.Net, Java, Node.js, and Windows Services?",
+        answers: [
+            { text: "Jenkins", correct: false},
+            { text: "Octopus Deploy", correct: true},
+            { text: "Bamboo", correct: false},
+            { text: "SolarWinds Patch Manager", correct: false},
+        ]
+    },
+    {
+        question: "Which tool offers support for the delivery aspect of continuous delivery?",
+        answers: [
+            { text: "Jenkins", correct: false},
+            { text: "Octopus Deploy", correct: false},
+            { text: "Bamboo", correct: true},
+            { text: "NUnit", correct: false},
+        ]
+    },
+    {
+        question: "Which tool is an automated patch management software for Microsoft servers, workstations, and third-party applications?",
+        answers: [
+            { text: "Jenkins", correct: false},
+            { text: "Octopus Deploy", correct: false},
+            { text: "Bamboo", correct: false},
+            { text: "SolarWinds Patch Manager", correct: true},
+        ]
+    }
+];
+    
+
+function shuffle(array){
+    for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+
+    shuffle(questions);
+    questions.forEach(q => shuffle(q.answers));
+
+    showQuestion();
+}
+
+function showQuestion(){
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+
+function resetState(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+
+startQuiz();
+
+</script>
+</html>

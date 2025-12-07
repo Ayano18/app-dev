@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+body{
+    background: #001e4d;
+}
+.app{
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: #001e4d;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    padding-bottom: 30px;
+}
+.quiz{
+    padding: 20px 0;
+}
+.quiz h2{
+    font-size: 18px;
+    color: #001e4d;
+    font-weight: 600;
+}
+.btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 100%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn:hover:not([disabled]){
+    background: #222;
+    color: #fff;
+}
+.btn:disabled{
+    cursor: no-drop;
+}
+#next-btn{
+    background: #001e4d;
+    color: #fff;
+    font-weight: 500;
+    width: 150px;
+    border: 0;
+    padding: 10px;
+    margin: 20px auto 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+.correct{
+    background: #9aeabc;
+}
+.incorrect{
+    background: #ff9393;
+}
+    </style>
+</head>
+
+<body>
+    
+    <div class="app">
+            <h1>Simple Quiz</h1>
+            <div class="quiz">
+                <h2 id="question">Question Goes Here</h2>
+                <div id="answer-buttons">
+                    <button class="btn">Answer 1</button>
+                    <button class="btn">Answer 2</button>
+                    <button class="btn">Answer 3</button>
+                    <button class="btn">Answer 4</button>
+                    <button class="btn">Answer 5</button>
+                    <button class="btn">Answer 6</button>
+                    <button class="btn">Answer 7</button>
+                    <button class="btn">Answer 8</button>
+                    <button class="btn">Answer 9</button>
+                    <button class="btn">Answer 10</button>
+                </div>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+
+</body>
+<script>
+
+    const questions = [
+    {
+        question: "In Java, what specifies whether other classes can use a particular field or invoke a particular method?",
+        answers: [
+            { text: "Return type", correct: false},
+            { text: "Method signature", correct: false},
+            { text: "Access Modifier", correct: true},
+            { text: "Parameter list", correct: false},
+        ]
+    },
+    {
+        question: "Which access modifier allows a method to be visible to all classes?",
+        answers: [
+            { text: "private", correct: false},
+            { text: "protected", correct: false},
+            { text: "package-private", correct: false},
+            { text: "public", correct: true},
+        ]
+    },
+    {
+        question: "A method that can only be accessed in its own class is declared with which modifier?",
+        answers: [
+            { text: "protected", correct: false},
+            { text: "public", correct: false},
+            { text: "private", correct: true},
+            { text: "static", correct: false},
+        ]
+    },
+    {
+        question: "Which component of a method declaration is the data type of the value returned by the method?",
+        answers: [
+            { text: "Parameter list", correct: false},
+            { text: "Optional exception list", correct: false},
+            { text: "Return type", correct: true},
+            { text: "Method body", correct: false},
+        ]
+    },
+    {
+        question: "Which type of variable is declared with the 'static' modifier?",
+        answers: [
+            { text: "instance variable", correct: false},
+            { text: "local variable", correct: false},
+            { text: "method variable", correct: false},
+            { text: "static variable", correct: true},
+        ]
+    },
+    {
+        question: "A method that belongs to the class itself, rather than an object of the class, is called?",
+        answers: [
+            { text: "instance method", correct: false},
+            { text: "abstract method", correct: false},
+            { text: "static method", correct: true},
+            { text: "private method", correct: false},
+        ]
+    },
+    {
+        question: "What term refers to the variables listed in a method declaration?",
+        answers: [
+            { text: "Arguments", correct: false},
+            { text: "Literals", correct: false},
+            { text: "Parameters", correct: true},
+            { text: "Variables", correct: false},
+        ]
+    },
+    {
+        question: "What are the actual values that are passed in when a method is invoked?",
+        answers: [
+            { text: "Parameters", correct: false},
+            { text: "Arguments", correct: true},
+            { text: "Method signature", correct: false},
+            { text: "Method declaration", correct: false},
+        ]
+    },
+    {
+        question: "What technique involves passing a copy of a variable to a method?",
+        answers: [
+            { text: "Method overloading", correct: false},
+            { text: "Autoboxing", correct: false},
+            { text: "Pass-by-reference", correct: false},
+            { text: "Pass-by-value", correct: true},
+        ]
+    },
+    {
+        question: "What consists of a method's name and its parameter types?",
+        answers: [
+            { text: "Method declaration", correct: false},
+            { text: "Return type", correct: false},
+            { text: "Access modifier", correct: false},
+            { text: "Method signature", correct: true},
+        ]
+    },
+    {
+        question: "Having multiple methods with the same name but different parameters is an example of what concept?",
+        answers: [
+            { text: "Method overriding", correct: false},
+            { text: "Method overloading", correct: true},
+            { text: "Method abstraction", correct: false},
+            { text: "Autoboxing", correct: false},
+        ]
+    },
+    {
+        question: "The automatic conversion between primitive types and their corresponding wrapper classes is known as what?",
+        answers: [
+            { text: "Method overriding", correct: false},
+            { text: "Casting", correct: false},
+            { text: "Autoboxing", correct: true},
+            { text: "Polymorphism", correct: false},
+        ]
+    },
+    {
+        question: "A variable that is non-static and declared outside any method, constructor, or block is called?",
+        answers: [
+            { text: "static variable", correct: false},
+            { text: "local variable", correct: false},
+            { text: "instance variable", correct: true},
+            { text: "class variable", correct: false},
+        ]
+    },
+    {
+        question: "It specifies all the information needed to call the method?",
+        answers: [
+            { text: "Method body", correct: false},
+            { text: "Method declaration", correct: true},
+            { text: "Parameter list", correct: false},
+            { text: "Method signature", correct: false},
+        ]
+    },
+    {
+        question: "The 'protected' modifier specifies that a member can only be accessed within its own package or by a subclass in another package. What modifier restricts access to only its own package?",
+        answers: [
+            { text: "private", correct: false},
+            { text: "public", correct: false},
+            { text: "protected", correct: false},
+            { text: "package-private", correct: true},
+        ]
+    },
+    {
+        question: "What is the portion of a method enclosed between braces?",
+        answers: [
+            { text: "Parameter list", correct: false},
+            { text: "Method signature", correct: false},
+            { text: "Method body", correct: true},
+            { text: "Return type", correct: false},
+        ]
+    },
+    {
+        question: "What part of a method indicates that the method might throw one of the listed exception types?",
+        answers: [
+            { text: "Parameter list", correct: false},
+            { text: "Optional exception list", correct: true},
+            { text: "Return type", correct: false},
+            { text: "Method body", correct: false},
+        ]
+    },
+];
+
+function shuffle(array){
+    for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+
+    shuffle(questions);
+    questions.forEach(q => shuffle(q.answers));
+
+    showQuestion();
+}
+
+function showQuestion(){
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+
+function resetState(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+
+startQuiz();
+
+</script>
+</html>

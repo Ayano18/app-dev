@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+body{
+    background: #001e4d;
+}
+.app{
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: #001e4d;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    padding-bottom: 30px;
+}
+.quiz{
+    padding: 20px 0;
+}
+.quiz h2{
+    font-size: 18px;
+    color: #001e4d;
+    font-weight: 600;
+}
+.btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 100%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn:hover:not([disabled]){
+    background: #222;
+    color: #fff;
+}
+.btn:disabled{
+    cursor: no-drop;
+}
+#next-btn{
+    background: #001e4d;
+    color: #fff;
+    font-weight: 500;
+    width: 150px;
+    border: 0;
+    padding: 10px;
+    margin: 20px auto 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+.correct{
+    background: #9aeabc;
+}
+.incorrect{
+    background: #ff9393;
+}
+    </style>
+</head>
+
+<body>
+    
+    <div class="app">
+            <h1>Simple Quiz</h1>
+            <div class="quiz">
+                <h2 id="question">Question Goes Here</h2>
+                <div id="answer-buttons">
+                    <button class="btn">Answer 1</button>
+                    <button class="btn">Answer 2</button>
+                    <button class="btn">Answer 3</button>
+                    <button class="btn">Answer 4</button>
+                    <button class="btn">Answer 5</button>
+                    <button class="btn">Answer 6</button>
+                    <button class="btn">Answer 7</button>
+                    <button class="btn">Answer 8</button>
+                    <button class="btn">Answer 9</button>
+                    <button class="btn">Answer 10</button>
+                </div>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+
+</body>
+<script>
+
+
+const questions = [
+    // --- ADO.NET Core & Components ---
+    {
+        question: "What does ADO.NET stand for, which is a rich framework for retrieving and updating information in various relational databases?",
+        answers: [
+            { text: "Active Database Objects", correct: false},
+            { text: "Active Data Objects", correct: true},
+            { text: "Adapter Data Operations", correct: false},
+            { text: "Asynchronous Data Organizer", correct: false},
+        ]
+    },
+    {
+        question: "Which of the following is NOT one of the two main components of ADO.NET?",
+        answers: [
+            { text: "Data Provider", correct: false},
+            { text: "DataView", correct: false},
+            { text: "DataSet", correct: true},
+            { text: "Both Data Provider and DataSet are components", correct: false},
+        ]
+    },
+    {
+        question: "Which ADO.NET component is used for connecting to databases, recovering results, updating data, and executing commands?",
+        answers: [
+            { text: "DataSet", correct: false},
+            { text: "DataRelation", correct: false},
+            { text: "Data Provider", correct: true},
+            { text: "DataView", correct: false},
+        ]
+    },
+    {
+        question: "Which ADO.NET component characterizes a local, disconnected copy of related data tables?",
+        answers: [
+            { text: "Data Provider", correct: false},
+            { text: "DataAdaptor", correct: false},
+            { text: "DataSet", correct: true},
+            { text: "DataReader", correct: false},
+        ]
+    },
+    // --- Data Provider Components ---
+    {
+        question: "Within the Data Provider, which object is used to run SQL commands and perform a stored procedure?",
+        answers: [
+            { text: "Connection", correct: false},
+            { text: "DataReader", correct: false},
+            { text: "Command", correct: true},
+            { text: "DataAdapter", correct: false},
+        ]
+    },
+    {
+        question: "Which Data Provider component allows users to connect to and disconnect from a database?",
+        answers: [
+            { text: "Command", correct: false},
+            { text: "Connection", correct: true},
+            { text: "DataAdapter", correct: false},
+            { text: "DataReaders", correct: false},
+        ]
+    },
+    {
+        question: "Which Data Provider component transfers DataSets between the data source and the caller?",
+        answers: [
+            { text: "Command", correct: false},
+            { text: "DataReaders", correct: false},
+            { text: "DataAdapters", correct: true},
+            { text: "Connection", correct: false},
+        ]
+    },
+    {
+        question: "Which Data Provider component provides read-only access to data using a server-side cursor?",
+        answers: [
+            { text: "DataAdapters", correct: false},
+            { text: "DataSet", correct: false},
+            { text: "DataReaders", correct: true},
+            { text: "Command", correct: false},
+        ]
+    },
+    // --- DataSet Components ---
+    {
+        question: "Which DataSet component manages the data for any entity and contains zero or more rows of data?",
+        answers: [
+            { text: "DataColumn", correct: false},
+            { text: "DataRelation", correct: false},
+            { text: "DataTable", correct: true},
+            { text: "DataView", correct: false},
+        ]
+    },
+    {
+        question: "Which DataSet component includes a data type declaration based on the kind of data saved in a column?",
+        answers: [
+            { text: "DataRelation", correct: false},
+            { text: "DataColumn", correct: true},
+            { text: "DataTable", correct: false},
+            { text: "DataView", correct: false},
+        ]
+    },
+    {
+        question: "What is used to link two DataTable classes inside the DataSet class?",
+        answers: [
+            { text: "DataColumnMapping", correct: false},
+            { text: "DataView", correct: false},
+            { text: "DataRelation", correct: true},
+            { text: "DataAdapters", correct: false},
+        ]
+    },
+    {
+        question: "Which component is used to map a table name from the database to a DataTable within a DataSet?",
+        answers: [
+            { text: "DataRelation", correct: false},
+            { text: "DataView", correct: false},
+            { text: "DataColumnMapping", correct: true},
+            { text: "DataAdapters", correct: false},
+        ]
+    },
+    {
+        question: "Which DataSet component is used to customize the view of the table or desired view of the rows in a DataTable?",
+        answers: [
+            { text: "DataTable", correct: false},
+            { text: "DataView", correct: true},
+            { text: "DataColumnMapping", correct: false},
+            { text: "DataSet", correct: false},
+        ]
+    },
+    // --- System.Data Namespaces ---
+    {
+        question: "Which namespace includes all generic data access classes for ADO.NET?",
+        answers: [
+            { text: "System.Data.Common", correct: false},
+            { text: "System.Data", correct: true},
+            { text: "System.Data.SqlClient", correct: false},
+            { text: "System.Data.SqlTypes", correct: false},
+        ]
+    },
+    {
+        question: "Which namespace includes classes that are shared or overridden by individual data providers?",
+        answers: [
+            { text: "System.Data", correct: false},
+            { text: "System.Data.SqlClient", correct: false},
+            { text: "System.Data.Common", correct: true},
+            { text: "System.Data.Sql", correct: false},
+        ]
+    },
+    {
+        question: "Which namespace includes classes specific to the Entity Framework?",
+        answers: [
+            { text: "System.Data.Linq.SqlClient", correct: false},
+            { text: "System.Data.Odbc", correct: false},
+            { text: "System.Data.EntityClient", correct: true},
+            { text: "System.Data.OleDb", correct: false},
+        ]
+    },
+    {
+        question: "Which namespace includes LINQ to SQL provider classes?",
+        answers: [
+            { text: "System.Data.SqlClient", correct: false},
+            { text: "System.Data.Linq.SqlClient", correct: true},
+            { text: "System.Data.Sql", correct: false},
+            { text: "System.Data.EntityClient", correct: false},
+        ]
+    },
+    {
+        question: "Which namespace includes ODBC provider classes?",
+        answers: [
+            { text: "System.Data.OleDb", correct: false},
+            { text: "System.Data.Odbc", correct: true},
+            { text: "System.Data.SqlClient", correct: false},
+            { text: "System.Data.Common", correct: false},
+        ]
+    },
+    {
+        question: "Which namespace includes OLE DB provider classes?",
+        answers: [
+            { text: "System.Data.Odbc", correct: false},
+            { text: "System.Data.OleDb", correct: true},
+            { text: "System.Data.Sql", correct: false},
+            { text: "System.Data.ProviderBase", correct: false},
+        ]
+    },
+    {
+        question: "Which namespace includes new base classes and connection factory classes for ADO.NET?",
+        answers: [
+            { text: "System.Data.Common", correct: false},
+            { text: "System.Data.Sql", correct: false},
+            { text: "System.Data.ProviderBase", correct: true},
+            { text: "System.Data.SqlClient", correct: false},
+        ]
+    },
+    {
+        question: "Which namespace includes new generic interfaces and classes for general SQL Server data access?",
+        answers: [
+            { text: "System.Data.SqlClient", correct: false},
+            { text: "System.Data.SqlTypes", correct: false},
+            { text: "System.Data.Sql", correct: true},
+            { text: "System.Data.EntityClient", correct: false},
+        ]
+    },
+    {
+        question: "Which namespace includes classes specific to the SQL Server provider?",
+        answers: [
+            { text: "System.Data.Sql", correct: false},
+            { text: "System.Data.SqlClient", correct: true},
+            { text: "System.Data.Odbc", correct: false},
+            { text: "System.Data.OleDb", correct: false},
+        ]
+    },
+    {
+        question: "Which namespace includes specific SQL Server data types?",
+        answers: [
+            { text: "System.Data.Sql", correct: false},
+            { text: "System.Data.SqlClient", correct: false},
+            { text: "System.Data.SqlTypes", correct: true},
+            { text: "System.Data.Common", correct: false},
+        ]
+    },
+    // --- Creating a Database & Connection Properties ---
+    {
+        question: "Which Visual Studio tool is a server management console used for logging in to servers and accessing databases?",
+        answers: [
+            { text: "SQL Server Object Explorer", correct: false},
+            { text: "Data Connections", correct: false},
+            { text: "Server Explorer", correct: true},
+            { text: "Command Window", correct: false},
+        ]
+    },
+    {
+        question: "Which section in Server Explorer contains all the connections to the server and local databases?",
+        answers: [
+            { text: "Server Explorer", correct: false},
+            { text: "SQL Server Object Explorer", correct: false},
+            { text: "Data Connections", correct: true},
+            { text: "Output Window", correct: false},
+        ]
+    },
+    {
+        question: "Which tool is used to design, connect to the available database, browse the schema, and create a query?",
+        answers: [
+            { text: "Server Explorer", correct: false},
+            { text: "Data Connections", correct: false},
+            { text: "SQL Server Object Explorer", correct: true},
+            { text: "Solution Explorer", correct: false},
+        ]
+    },
+    {
+        question: "Which `SqlConnection` property is used to read or assign the required connection string?",
+        answers: [
+            { text: "DataSource", correct: false},
+            { text: "Database", correct: false},
+            { text: "ConnectionString", correct: true},
+            { text: "State", correct: false},
+        ]
+    },
+    {
+        question: "Which read-only property returns the name of the SQL Server instance?",
+        answers: [
+            { text: "Database", correct: false},
+            { text: "ConnectionString", correct: false},
+            { text: "State", correct: false},
+            { text: "DataSource", correct: true},
+        ]
+    },
+    {
+        question: "Which read-only property returns the name of the database currently connected to?",
+        answers: [
+            { text: "DataSource", correct: false},
+            { text: "ConnectionString", correct: false},
+            { text: "Database", correct: true},
+            { text: "State", correct: false},
+        ]
+    },
+    {
+        question: "Which read-only property returns the current state (e.g., Open, Closed, Connecting) of the connection?",
+        answers: [
+            { text: "DataSource", correct: false},
+            { text: "ConnectionString", correct: false},
+            { text: "Database", correct: false},
+            { text: "State", correct: true},
+        ]
+    },
+    // --- Command Execution Methods ---
+    {
+        question: "Which command method executes the command but does not return any output (used for INSERT, UPDATE, DELETE)?",
+        answers: [
+            { text: "ExecuteReader", correct: false},
+            { text: "ExecuteNonQuery", correct: true},
+            { text: "ExecureScalar", correct: false},
+            { text: "ExecureRow", correct: false},
+        ]
+    },
+    {
+        question: "Which command method executes the command and returns a DataReader object based on the SQL statement?",
+        answers: [
+            { text: "ExecuteNonQuery", correct: false},
+            { text: "ExecuteReader", correct: true},
+            { text: "ExecureScalar", correct: false},
+            { text: "ExecureRow", correct: false},
+        ]
+    },
+    {
+        question: "What object is a forward-only and read-only cursor that can be iterated through to fetch the rows in the result set?",
+        answers: [
+            { text: "DataSet", correct: false},
+            { text: "SqlDataReader", correct: true},
+            { text: "DataTable", correct: false},
+            { text: "SqlRecord", correct: false},
+        ]
+    },
+    {
+        question: "Which method executes the command and returns the `SqlRecord` object that contains a single returned row?",
+        answers: [
+            { text: "ExecuteNonQuery", correct: false},
+            { text: "ExecuteReader", correct: false},
+            { text: "ExecureScalar", correct: false},
+            { text: "ExecureRow", correct: true},
+        ]
+    },
+    {
+        question: "Which method executes the command and returns the first column of the first row in the result set (used for aggregate queries like COUNT)?",
+        answers: [
+            { text: "ExecuteNonQuery", correct: false},
+            { text: "ExecuteReader", correct: false},
+            { text: "ExecureRow", correct: false},
+            { text: "ExecureScalar", correct: true},
+        ]
+    },
+    // --- SqlCommand Properties & Parameters ---
+    {
+        question: "Which property gets or sets the `SqlConnection` class that can be used by the Command object?",
+        answers: [
+            { text: "CommandText", correct: false},
+            { text: "CommandType", correct: false},
+            { text: "Connection", correct: true},
+            { text: "ConnectionString", correct: false},
+        ]
+    },
+    {
+        question: "Which property gets or sets the stored procedure or the T-SQL statement to be executed?",
+        answers: [
+            { text: "Connection", correct: false},
+            { text: "CommandText", correct: true},
+            { text: "CommandType", correct: false},
+            { text: "DataSource", correct: false},
+        ]
+    },
+    {
+        question: "Which property indicates the way the `CommandText` property should be interpreted (e.g., Text, StoredProcedure)?",
+        answers: [
+            { text: "CommandText", correct: false},
+            { text: "CommandType", correct: true},
+            { text: "Connection", correct: false},
+            { text: "State", correct: false},
+        ]
+    },
+    {
+        question: "Which method adds a specified `SqlParameter` object to the collection and requires two arguments: the string and `SqlDbType`?",
+        answers: [
+            { text: "AddWithValue()", correct: false},
+            { text: "Add()", correct: true},
+            { text: "Insert()", correct: false},
+            { text: "Append()", correct: false},
+        ]
+    },
+    {
+        question: "Which method adds a value to the end of the `SqlParameterCollection` without requiring an explicit `SqlDbType`?",
+        answers: [
+            { text: "Add()", correct: false},
+            { text: "AddWithValue()", correct: true},
+            { text: "ExecuteNonQuery()", correct: false},
+            { text: "ExecureScalar()", correct: false},
+        ]
+    }
+];
+    
+
+function shuffle(array){
+    for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+
+    shuffle(questions);
+    questions.forEach(q => shuffle(q.answers));
+
+    showQuestion();
+}
+
+function showQuestion(){
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+
+function resetState(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+
+startQuiz();
+
+</script>
+</html>

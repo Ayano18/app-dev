@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Quality & Prototyping Quiz</title>
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the quiz */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card {
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        .option-button {
+            transition: all 0.1s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .option-button:hover:not(.disabled) {
+            background-color: #f3f4f6;
+            transform: translateY(-1px);
+        }
+        /* MODIFIED: More prominent green color */
+        .correct {
+            background-color: #a7f3d0; /* Green 200 - Brighter background */
+            border-color: #059669; /* Green 600 - Darker, more distinct border */
+            font-weight: 700; /* Bolder text */
+        }
+        /* MODIFIED: More prominent red color */
+        .incorrect {
+            background-color: #FF7276; /* Red 300 - Brighter background */
+            border-color: #b91c1c; /* Red 700 - Darker, more distinct border */
+            font-weight: 700; /* Bolder text */
+        }
+        .disabled {
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-6 mt-4">Software Fundamentals Quiz (14 Questions)</h1>
+
+        <div id="quiz-card" class="card p-6 w-full md:w-3/4 lg:w-2/3">
+            <!-- Progress Tracker -->
+            <div class="flex justify-between items-center text-sm font-medium text-gray-500 mb-4">
+                <span id="question-count"></span>
+                <span id="current-score">Score: 0</span>
+            </div>
+            
+            <!-- Question Display Area -->
+            <div id="question-area">
+                <p class="text-xl font-semibold text-gray-700 mb-6" id="question-text"></p>
+                <div id="options-container" class="space-y-3">
+                    <!-- Options will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Result and Restart Area -->
+            <div id="result-area" class="text-center hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4" id="final-message"></h2>
+                <p class="text-2xl text-indigo-600 mb-8">
+                    Your Final Score: <span id="final-score" class="font-extrabold"></span>
+                </p>
+                <button id="restart-button" class="bg-indigo-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-indigo-700 transition duration-150 shadow-lg">
+                    Restart Quiz
+                </button>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-end mt-8">
+                <button id="next-button" class="bg-indigo-500 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-indigo-600 transition duration-150 disabled:opacity-50" disabled>
+                    Next Question
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- QUIZ DATA ---
+        // Array of all 14 quiz questions (Term: Definition)
+        const allQuestions = [
+            {
+                term: "Software quality",
+                correct: "The degree to which a software product meets the gathered requirements.",
+                distractors: [
+                    "A fast method where prototypes are created for insights, tested, and then discarded after obtaining feedback.",
+                    "A set of planned and implemented activities to define, assess, and ensure quality in the software development process."
+                ]
+            },
+            {
+                term: "Software quality assurance",
+                correct: "A set of planned and implemented activities to define, assess, and ensure quality in the software development process.",
+                distractors: [
+                    "The development and use of the software might require some form of certification.",
+                    "The visual appearance and user flows of software, which is the role of Low-Fidelity Prototyping."
+                ]
+            },
+            {
+                term: "Reputation",
+                correct: "Software developers and their organizations rely on this. Software bugs can have immediate impacts on clients or customers",
+                distractors: [
+                    "The existence of overriding legal obligations that apply to organizations, requiring them to demonstrate the software system does not pose a risk.",
+                    "Poor quality software tends to be expensive to develop and maintain in the long term, often referred to as technical debt."
+                ]
+            },
+            {
+                term: "Limiting Technical Debt",
+                correct: "Poor quality software tends to be expensive to develop and maintain in the long term.",
+                distractors: [
+                    "A moral obligation to users, even when a system failure is not safety-critical, to prevent potentially harmful bugs.",
+                    "A visual representation of a product page that developers use to arrange pages of user interfaces."
+                ]
+            },
+            {
+                term: "Software Certification",
+                correct: "The development and use of software that might require some form of official confirmation of quality and evidence of quality control measures.",
+                distractors: [
+                    "A fast method where prototypes are created for insights, tested, and then discarded after obtaining feedback.",
+                    "A moral obligation to users, even when a system failure is not safety-critical, to prevent potentially harmful bugs."
+                ]
+            },
+            {
+                term: "Legality",
+                correct: "The existence of overriding legal obligations that apply to organizations, requiring them to demonstrate the software system does not pose a risk.",
+                distractors: [
+                    "Prototypes created when developers have a solid understanding of what they are going to build, often requiring testing with actual users.",
+                    "A key reason for SQA, where software developers and organizations rely on customers/clients, and and bugs can have immediate impacts."
+                ]
+            },
+            {
+                term: "Ethical Codes of Practice",
+                correct: "A moral obligation to users, even when a system failure is not business or safety-critical, to prevent potentially harmful bugs.",
+                distractors: [
+                    "The development and use of the software might require some form of certification.",
+                    "The degree to which a software product meets the gathered requirements."
+                ]
+            },
+            {
+                term: "Software prototyping",
+                correct: "Building application prototypes to display product functionality, often without the exact logic of the original software.",
+                distractors: [
+                    "Prototypes that are reused and altered based on test results, eventually evolving into the final product itself.",
+                    "Prototypes created when developers have a solid understanding of what they are going to build."
+                ]
+            },
+            {
+                term: "Throwaway Prototyping",
+                correct: "A fast method where prototypes are created for insights, tested, and then discarded after obtaining feedback.",
+                distractors: [
+                    "Prototypes that are reused and altered based on test results, eventually evolving into the final product itself.",
+                    "A type of prototyping whose role is to check the visual appearance and user flows of a software."
+                ]
+            },
+            {
+                term: "Evolutionary Prototyping",
+                correct: "Prototypes that are reused and altered based on test results, eventually evolving into the final product itself.",
+                distractors: [
+                    "A fast method where prototypes are created for insights, tested, and then discarded after obtaining feedback.",
+                    "Building application prototypes to display product functionality, often without the exact logic of the original software."
+                ]
+            },
+            {
+                term: "Low-Fidelity Prototyping",
+                correct: "A type of prototyping whose role is to check the visual appearance and user flows of a software.",
+                distractors: [
+                    "Prototypes created when developers have a solid understanding of what they are going to build.",
+                    "A technique used to create a prototype based on hand drawings that represent user interfaces of the software."
+                ]
+            },
+            {
+                term: "Paper-Based Prototyping",
+                correct: "A technique used to create a prototype based on hand drawings that represent user interfaces of the software.",
+                distractors: [
+                    "A visual representation of a product page that developers use to arrange pages of user interfaces.",
+                    "A type of prototyping whose role is to check the visual appearance and user flows of a software."
+                ]
+            },
+            {
+                term: "Wireframing",
+                correct: "A visual representation of a product page that developers use to arrange pages of user interfaces.",
+                distractors: [
+                    "Prototypes that are reused and altered based on test results, eventually evolving into the final product itself.",
+                    "The development and use of the software might require some form of certification."
+                ]
+            },
+            {
+                term: "High-Fidelity Prototyping",
+                correct: "Prototypes created when developers have a solid understanding of what they are going to build, often requiring testing with actual users.",
+                distractors: [
+                    "A fast method where prototypes are created for insights, tested, and then discarded after obtaining feedback.",
+                    "The degree to which a software product meets the gathered requirements."
+                ]
+            }
+        ];
+
+        // --- STATE VARIABLES ---
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredCurrentQuestion = false;
+
+        // --- DOM REFERENCES ---
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextButton = document.getElementById('next-button');
+        const questionCountSpan = document.getElementById('question-count');
+        const currentScoreSpan = document.getElementById('current-score');
+        const questionArea = document.getElementById('question-area');
+        const resultArea = document.getElementById('result-area');
+        const finalScoreSpan = document.getElementById('final-score');
+        const finalMessageH2 = document.getElementById('final-message');
+        const restartButton = document.getElementById('restart-button');
+
+        // --- HELPER FUNCTIONS ---
+
+        /**
+         * Shuffles an array using the Fisher-Yates (Knuth) algorithm.
+         * @param {Array} array The array to shuffle.
+         * @returns {Array} The shuffled array.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * Initializes and starts the quiz.
+         */
+        function startQuiz() {
+            // 1. Shuffle all questions and assign them to the current quiz set
+            currentQuestions = shuffleArray([...allQuestions]);
+            currentQuestionIndex = 0;
+            score = 0;
+            answeredCurrentQuestion = false;
+
+            // 2. Reset UI state
+            questionArea.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            nextButton.textContent = 'Next Question';
+            nextButton.disabled = true;
+
+            // 3. Render the first question
+            renderQuestion();
+        }
+
+        /**
+         * Renders the current question and its options to the UI.
+         */
+        function renderQuestion() {
+            const q = currentQuestions[currentQuestionIndex];
+            const totalQuestions = currentQuestions.length;
+
+            // Update progress
+            questionCountSpan.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+            currentScoreSpan.textContent = `Score: ${score}`;
+
+            // Set question text
+            questionText.textContent = `Which definition best describes the term: "${q.term}"?`;
+
+            // Prepare options (correct answer + distractors)
+            const options = shuffleArray([q.correct, ...q.distractors]);
+
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+
+            // Create new option buttons
+            options.forEach(optionText => {
+                const button = document.createElement('button');
+                button.textContent = optionText;
+                button.setAttribute('data-answer', optionText);
+                button.className = 'option-button w-full text-left p-3 border border-gray-200 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none';
+                button.addEventListener('click', handleAnswerSelection);
+                optionsContainer.appendChild(button);
+            });
+
+            // Reset button state for new question
+            answeredCurrentQuestion = false;
+            nextButton.disabled = true;
+
+            // Update 'Next' button text if it's the last question
+            if (currentQuestionIndex === totalQuestions - 1) {
+                nextButton.textContent = 'Finish Quiz';
+            } else {
+                nextButton.textContent = 'Next Question';
+            }
+        }
+
+        /**
+         * Handles the user selecting an answer option.
+         * @param {Event} event The click event.
+         */
+        function handleAnswerSelection(event) {
+            if (answeredCurrentQuestion) return; // Prevent double-clicking
+
+            answeredCurrentQuestion = true;
+            nextButton.disabled = false;
+
+            const selectedButton = event.currentTarget;
+            const selectedAnswer = selectedButton.getAttribute('data-answer');
+            const correctAnswer = currentQuestions[currentQuestionIndex].correct;
+
+            // Disable all option buttons
+            const optionButtons = optionsContainer.querySelectorAll('.option-button');
+            optionButtons.forEach(btn => btn.classList.add('disabled'));
+
+            // Check if the answer is correct
+            if (selectedAnswer === correctAnswer) {
+                score++;
+                selectedButton.classList.add('correct', 'border-4');
+            } else {
+                selectedButton.classList.add('incorrect', 'border-4');
+                // Highlight the correct answer
+                optionButtons.forEach(btn => {
+                    if (btn.getAttribute('data-answer') === correctAnswer) {
+                        btn.classList.add('correct', 'border-4');
+                    }
+                });
+            }
+
+            // Update score display immediately
+            currentScoreSpan.textContent = `Score: ${score}`;
+        }
+
+        /**
+         * Moves to the next question or ends the quiz.
+         */
+        function nextQuestion() {
+            if (!answeredCurrentQuestion) return; // Should be disabled, but good safeguard
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < currentQuestions.length) {
+                // Render the next question
+                renderQuestion();
+            } else {
+                // Quiz is finished
+                endQuiz();
+            }
+        }
+
+        /**
+         * Displays the final score and result message.
+         */
+        function endQuiz() {
+            questionArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+
+            const finalScore = score;
+            const totalQuestions = currentQuestions.length;
+            finalScoreSpan.textContent = `${finalScore} / ${totalQuestions}`;
+
+            const percentage = (finalScore / totalQuestions) * 100;
+            let message = "Great job!";
+            if (percentage < 50) {
+                message = "Keep practicing!";
+            } else if (percentage < 80) {
+                message = "Solid effort, almost there!";
+            } else {
+                message = "Excellent work!";
+            }
+            finalMessageH2.textContent = message;
+        }
+
+        // --- EVENT LISTENERS ---
+        nextButton.addEventListener('click', nextQuestion);
+        restartButton.addEventListener('click', startQuiz);
+
+        // Initialize the quiz when the page loads
+        document.addEventListener('DOMContentLoaded', startQuiz);
+
+    </script>
+</body>
+</html>

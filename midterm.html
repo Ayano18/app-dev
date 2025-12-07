@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+body{
+    background: #001e4d;
+}
+.app{
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: #001e4d;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    padding-bottom: 30px;
+}
+.quiz{
+    padding: 20px 0;
+}
+.quiz h2{
+    font-size: 18px;
+    color: #001e4d;
+    font-weight: 600;
+}
+.btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 100%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn:hover:not([disabled]){
+    background: #222;
+    color: #fff;
+}
+.btn:disabled{
+    cursor: no-drop;
+}
+#next-btn{
+    background: #001e4d;
+    color: #fff;
+    font-weight: 500;
+    width: 150px;
+    border: 0;
+    padding: 10px;
+    margin: 20px auto 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+.correct{
+    background: #9aeabc;
+}
+.incorrect{
+    background: #ff9393;
+}
+    </style>
+</head>
+
+<body>
+    
+    <div class="app">
+            <h1>Simple Quiz</h1>
+            <div class="quiz">
+                <h2 id="question">Question Goes Here</h2>
+                <div id="answer-buttons">
+                    <button class="btn">Answer 1</button>
+                    <button class="btn">Answer 2</button>
+                    <button class="btn">Answer 3</button>
+                    <button class="btn">Answer 4</button>
+                    <button class="btn">Answer 5</button>
+                    <button class="btn">Answer 6</button>
+                    <button class="btn">Answer 7</button>
+                    <button class="btn">Answer 8</button>
+                    <button class="btn">Answer 9</button>
+                    <button class="btn">Answer 10</button>
+                </div>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+
+</body>
+<script>
+
+const questions = [
+    {
+        question: "What is used in the creation of an object that is an instance of a class using the 'new' keyword?",
+        answers: [
+            { text: "Method", correct: false},
+            { text: "Interface", correct: false},
+            { text: "Constructor", correct: true},
+            { text: "Function", correct: false},
+        ]
+    },
+    {
+        question: "A constructor that has an empty parameter list and an empty body is known as?",
+        answers: [
+            { text: "private constructor", correct: false},
+            { text: "static constructor", correct: false},
+            { text: "default constructor", correct: true},
+            { text: "overloaded constructor", correct: false},
+        ]
+    },
+    {
+        question: "What occurs when multiple constructors in a class have the same name but different type parameters?",
+        answers: [
+            { text: "Constructor Overriding", correct: false},
+            { text: "Constructor Chaining", correct: false},
+            { text: "Method Overloading", correct: false},
+            { text: "Constructor Overloading", correct: true},
+        ]
+    },
+    {
+        question: "The process where one constructor calls another constructor with a greater number of parameters",
+        answers: [
+            { text: "Constructor Overloading", correct: false},
+            { text: "Method Overriding", correct: false},
+            { text: "Constructor Chaining", correct: true},
+            { text: "Polymorphism", correct: false},
+        ]
+    },
+    {
+        question: "The OOP principle that describes the ability of an object to hide its data and methods",
+        answers: [
+            { text: "Polymorphism", correct: false},
+            { text: "Inheritance", correct: false},
+            { text: "Abstraction", correct: false},
+            { text: "Encapsulation", correct: true},
+        ]
+    },
+    {
+        question: "A method that returns data from a private instance variable is typically called?",
+        answers: [
+            { text: "Setter (Mutator)", correct: false},
+            { text: "Creator", correct: false},
+            { text: "Getter (Accessor)", correct: true},
+            { text: "Hider", correct: false},
+        ]
+    },
+    {
+        question: "A method specifically designed to change the data stored in a private instance variable is called?",
+        answers: [
+            { text: "Getter (Accessor)", correct: false},
+            { text: "Setter (Mutator)", correct: true},
+            { text: "Static method", correct: false},
+            { text: "Utility method", correct: false},
+        ]
+    },
+    {
+        question: "A class that remains 'unchanged' after an object of another class is constructed",
+        answers: [
+            { text: "abstract", correct: false},
+            { text: "mutable", correct: false},
+            { text: "static", correct: false},
+            { text: "immutable", correct: true},
+        ]
+    },
+    {
+        question: "What OOP concept allows a class to acquire all the attributes and methods of another class?",
+        answers: [
+            { text: "Encapsulation", correct: false},
+            { text: "Polymorphism", correct: false},
+            { text: "Inheritance", correct: true},
+            { text: "Abstraction", correct: false},
+        ]
+    },
+    {
+        question: "A class that is 'derived from' another class is referred to?",
+        answers: [
+            { text: "superclass", correct: false},
+            { text: "base class", correct: false},
+            { text: "subclass", correct: true},
+            { text: "parent class", correct: false},
+        ]
+    },
+    {
+        question: "A class from which a subclass is 'derived' is referred to?",
+        answers: [
+            { text: "subclass", correct: false},
+            { text: "child class", correct: false},
+            { text: "instance class", correct: false},
+            { text: "superclass", correct: true},
+        ]
+    },
+    {
+        question: "Which keyword is used to call a constructor in the **direct parent class?",
+        answers: [
+            { text: "this", correct: false},
+            { text: "new", correct: false},
+            { text: "super", correct: true},
+            { text: "parent", correct: false},
+        ]
+    },
+    {
+        question: "What occurs when you define a new method with the same name, parameter list, and return type as a method in the parent class?",
+        answers: [
+            { text: "Method Overloading", correct: false},
+            { text: "Method Hiding", correct: false},
+            { text: "Method Overriding", correct: true},
+            { text: "Method Chaining", correct: false},
+        ]
+    },
+    {
+        question: "If Class B `extends` Class A, Class B is the subclass and Class A is the ________.",
+        answers: [
+            { text: "instance class", correct: false},
+            { text: "child class", correct: false},
+            { text: "superclass", correct: true},
+            { text: "private class", correct: false},
+        ]
+    }
+];
+
+function shuffle(array){
+    for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+
+    shuffle(questions);
+    questions.forEach(q => shuffle(q.answers));
+
+    showQuestion();
+}
+
+function showQuestion(){
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+
+function resetState(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+
+startQuiz();
+
+</script>
+</html>
