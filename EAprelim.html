@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+body{
+    background: #001e4d;
+}
+.app{
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: #001e4d;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    padding-bottom: 30px;
+}
+.quiz{
+    padding: 20px 0;
+}
+.quiz h2{
+    font-size: 18px;
+    color: #001e4d;
+    font-weight: 600;
+}
+.btn{
+    background: #fff;
+    color: #222;
+    font-weight: 500;
+    width: 100%;
+    border: 1px solid #222;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn:hover:not([disabled]){
+    background: #222;
+    color: #fff;
+}
+.btn:disabled{
+    cursor: no-drop;
+}
+#next-btn{
+    background: #001e4d;
+    color: #fff;
+    font-weight: 500;
+    width: 150px;
+    border: 0;
+    padding: 10px;
+    margin: 20px auto 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+.correct{
+    background: #9aeabc;
+}
+.incorrect{
+    background: #ff9393;
+}
+    </style>
+</head>
+
+<body>
+    
+    <div class="app">
+            <h1>Simple Quiz</h1>
+            <div class="quiz">
+                <h2 id="question">Question Goes Here</h2>
+                <div id="answer-buttons">
+                    <button class="btn">Answer 1</button>
+                    <button class="btn">Answer 2</button>
+                    <button class="btn">Answer 3</button>
+                    <button class="btn">Answer 4</button>
+                    <button class="btn">Answer 5</button>
+                    <button class="btn">Answer 6</button>
+                    <button class="btn">Answer 7</button>
+                    <button class="btn">Answer 8</button>
+                    <button class="btn">Answer 9</button>
+                    <button class="btn">Answer 10</button>
+                </div>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+
+</body>
+<script>
+
+//here
+const questions = [
+    {
+        question: "Which TOGAF component specifically contains the business, data, application, and information technology architecture?",
+        answers: [
+            { text: "Architecture Development Method (ADM)", correct: false},
+            { text: "Enterprise Continuum", correct: false},
+            { text: "Architecture content framework", correct: true},
+            { text: "Architecture Governance", correct: false},
+        ]
+    },
+    {
+        question: "This refers to a logical framework for classifying and organizing the descriptive representations of an enterprise.",
+        answers: [
+            { text: "The Open Group Architecture Framework", correct: false},
+            { text: "Balanced Scorecard", correct: false},
+            { text: "Zachman Framework", correct: true},
+            { text: "Model-Driven Architecture", correct: false},
+        ]
+    },
+    {
+        question: "Examples of these are the mission and vision of an organization.",
+        answers: [
+            { text: "External drivers", correct: false},
+            { text: "Internal drivers", correct: true},
+            { text: "Architecture principles", correct: false},
+            { text: "Business goals", correct: false},
+        ]
+    },
+    {
+        question: "This model interprets the meaning of each figure in a symbolic model.",
+        answers: [
+            { text: "Syntactic model", correct: false},
+            { text: "Visual model", correct: false},
+            { text: "Semantic model", correct: true},
+            { text: "Abstract model", correct: false},
+        ]
+    },
+    {
+        question: "What was the Zachman framework formerly called?",
+        answers: [
+            { text: "Framework for Enterprise Architecture", correct: false},
+            { text: "Information Architecture Matrix", correct: false},
+            { text: "Framework for Information Systems Architecture", correct: true},
+            { text: "The Open Group Architecture Framework", correct: false},
+        ]
+    },
+    {
+        question: "It refers to the art and science of designing complex structures that involves the fundamental concepts or properties of a system.",
+        answers: [
+            { text: "Engineering", correct: false},
+            { text: "Modeling", correct: false},
+            { text: "Implementation", correct: false},
+            { text: "Architecture", correct: true},
+        ]
+    },
+    {
+        question: "In MDA, this includes the business requirements and domain model that describes the state of the enterprise where the system will be integrated.",
+        answers: [
+            { text: "Platform independent model", correct: false},
+            { text: "Computation independent model", correct: true},
+            { text: "Platform specific model", correct: false},
+            { text: "Code model", correct: false},
+        ]
+    },
+    {
+        question: "What does BSC stand for?",
+        answers: [
+            { text: "Business Strategy Control", correct: false},
+            { text: "Balanced Scorecard", correct: true},
+            { text: "Business Scorecard Compliance", correct: false},
+            { text: "Balanced Strategy Control", correct: false},
+        ]
+    },
+    {
+        question: "This particular framework is considered as an ontology and not a methodology.",
+        answers: [
+            { text: "Architecture development method", correct: false},
+            { text: "Model-Driven Architecture", correct: false},
+            { text: "Zachman Framework", correct: true},
+            { text: "The Open Group Architecture Framework", correct: false},
+        ]
+    },
+    {
+        question: "What does ITIL stand for?",
+        answers: [
+            { text: "Information Technology Integration Library", correct: false},
+            { text: "Information Technology Infrastructure Library", correct: true},
+            { text: "Integrated Technology Infrastructure Library", correct: false},
+            { text: "Information Technology Implementation Life cycle", correct: false},
+        ]
+    },
+    {
+        question: "It refers to a collection of organizations that has a common set of goals, objectives, and/or a single targeted outcome.",
+        answers: [
+            { text: "Sub-system", correct: false},
+            { text: "Enterprise", correct: true},
+            { text: "Department", correct: false},
+            { text: "Ecosystem", correct: false},
+        ]
+    },
+    {
+        question: "It originated as a generic framework for developing technical architectures.",
+        answers: [
+            { text: "Information Technology Infrastructure Library", correct: false},
+            { text: "The Open Group Architecture Framework", correct: true},
+            { text: "Zachman Framework", correct: false},
+            { text: "Compatibility Maturity Model Integration", correct: false},
+        ]
+    },
+    {
+        question: "What does CMMI stand for?",
+        answers: [
+            { text: "Compatibility Maturity Model Integration", correct: true},
+            { text: "Customer Maturity Model Integration", correct: false},
+            { text: "Configuration Management and Maintenance Initiative", correct: false},
+            { text: "Capability Measurement and Management Initiative", correct: false},
+        ]
+    },
+    {
+        question: "This component of TOGAF provides the 'way of working' for architects.",
+        answers: [
+            { text: "Architecture development method", correct: true},
+            { text: "Architecture Continuum", correct: false},
+            { text: "Architecture Governance", correct: false},
+            { text: "Reference Models", correct: false},
+        ]
+    },
+    {
+        question: "It aims to provide an open and vendor-neutral approach to interoperability and raises the level of abstraction in enterprise architecture.",
+        answers: [
+            { text: "The Open Group Architecture Framework (TOGAF)", correct: false},
+            { text: "Information Technology Infrastructure Library (ITIL)", correct: false},
+            { text: "Model-Driven Architecture", correct: true},
+            { text: "Business Process Modeling Notation (BPMN)", correct: false},
+        ]
+    },
+    {
+        question: "Which of the following statements best describes enterprise architecture?",
+        answers: [
+            { text: "It is a detailed documentation of all hardware and software components.", correct: false},
+            { text: "It is a coherent collection of principles, methods, and models.", correct: true},
+            { text: "It is the process of setting a company's mission and vision.", correct: false},
+            { text: "It is a static drawing of the current state of the organization.", correct: false},
+        ]
+    }
+];
+
+function shuffle(array){
+    for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+
+    shuffle(questions);
+    questions.forEach(q => shuffle(q.answers));
+
+    showQuestion();
+}
+
+function showQuestion(){
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+
+function resetState(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
+}
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+
+nextButton.addEventListener("click", ()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
+
+
+startQuiz();
+
+</script>
+</html>
